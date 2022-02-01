@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.template.services
+package com.github.r1tschy.mergelab.services
 
-import org.jetbrains.plugins.template.MyBundle
+import com.github.r1tschy.mergelab.MyBundle
 
 class MyApplicationService {
 

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.template
+package com.github.r1tschy.mergelab
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls
