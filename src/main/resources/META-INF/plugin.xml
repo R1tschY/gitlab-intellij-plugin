@@ -1,14 +1,33 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.r1tschy.mergelab</id>
+
     <name>MergeLab</name>
-    <vendor>Richard Liebscher</vendor>
+    <vendor url="https://github.com/R1tschY">Richard Liebscher</vendor>
+    <description>
+        <![CDATA[
+            View and manage GitLab Merge Requests from IntelliJ.<br>
+        ]]>
+    </description>
 
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.github.r1tschy.mergelab.services.MyApplicationService"/>
         <projectService serviceImplementation="com.github.r1tschy.mergelab.services.MyProjectService"/>
+
+        <!-- Settings -->
+        <applicationConfigurable
+                parentId="tool"
+                instance="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"
+                id="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"
+                displayName="GitLab"/>
+        <applicationService
+                serviceImplementation="com.github.r1tschy.mergelab.settings.GitLabSettingsState"/>
+
+        <!-- Merge Request -->
+        <toolWindow id="MergeLab Merge Requests" secondary="true" icon="AllIcons.General.Modified" anchor="bottom"
+                    factoryClass="com.github.r1tschy.mergelab.ui.MergeRequestsToolWindowFactory"/>
     </extensions>
 
     <applicationListeners>
