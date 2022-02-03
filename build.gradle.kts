@@ -14,6 +14,8 @@ plugins {
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
     id("org.jetbrains.qodana") version "0.1.13"
+
+    id("com.expediagroup.graphql") version "5.3.2"
 }
 
 group = properties("pluginGroup")
@@ -22,6 +24,10 @@ version = properties("pluginVersion")
 // Configure project's dependencies
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-ktor-client", "5.3.2")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
@@ -46,6 +52,13 @@ qodana {
     reportPath.set(projectDir.resolve("build/reports/inspections").canonicalPath)
     saveReport.set(true)
     showReport.set(System.getenv("QODANA_SHOW_REPORT")?.toBoolean() ?: false)
+}
+
+graphql {
+    client {
+        endpoint = "https://gitlab.com/api/graphql"
+        packageName = "com.github.r1tschy.mergelab.gitlabapi"
+    }
 }
 
 tasks {
