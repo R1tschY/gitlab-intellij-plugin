@@ -77,6 +77,8 @@ tasks {
         gradleVersion = properties("gradleVersion")
     }
 
+    graphqlGenerateTestClient.configure { this.enabled = false }
+
     patchPluginXml {
         version.set(properties("pluginVersion"))
         sinceBuild.set(properties("pluginSinceBuild"))
