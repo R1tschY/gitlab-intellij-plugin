@@ -4,13 +4,10 @@
 
     <name>MergeLab</name>
     <vendor url="https://github.com/R1tschY">Richard Liebscher</vendor>
-    <description>
-        <![CDATA[
-            View and manage GitLab Merge Requests from IntelliJ.<br>
-        ]]>
-    </description>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.vcs</depends>
+    <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.github.r1tschy.mergelab.services.MyApplicationService"/>

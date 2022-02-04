@@ -28,7 +28,10 @@ repositories {
 
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-ktor-client", "5.3.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }
+
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
@@ -71,6 +74,10 @@ tasks {
         withType<KotlinCompile> {
             kotlinOptions.jvmTarget = it
         }
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     wrapper {
