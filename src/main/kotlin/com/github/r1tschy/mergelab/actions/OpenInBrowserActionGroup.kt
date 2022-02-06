@@ -1,5 +1,6 @@
 package com.github.r1tschy.mergelab.actions
 
+import com.github.r1tschy.mergelab.GitLabIcons
 import com.github.r1tschy.mergelab.model.GitLabRemote
 import com.github.r1tschy.mergelab.services.GitLabRemotesManager
 import com.github.r1tschy.mergelab.ui.Notifications
@@ -23,7 +24,7 @@ import git4idea.GitUtil
 import org.jetbrains.annotations.Nls
 
 
-class OpenInBrowserActionGroup : ActionGroup("Open on GitLab", "Open item in browser", null) {
+class OpenInBrowserActionGroup : ActionGroup("Open on GitLab", "Open item in browser", GitLabIcons.GitLab) {
 
     init {
         // FUTURE: >= 2022.1: REMOVE

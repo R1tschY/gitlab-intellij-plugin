@@ -41,9 +41,7 @@
     <!-- Actions -->
     <actions>
         <action id="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup"
-                class="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup"
-                text="Go To GitLab Project"
-                description="Show GitLab project in Browser" >
+                class="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup">
             <add-to-group group-id="RevealGroup"/>
             <add-to-group group-id="Vcs.Log.ContextMenu" anchor="last"/>
             <add-to-group group-id="VcsHistoryActionsGroup" anchor="last"/>
