@@ -17,7 +17,7 @@ fun buildFileUrl(editor: Editor?, projectCoord: GitLabProjectCoord, ref: String,
     }
 
     val result = StringBuilder()
-    result.append(projectCoord.toUrl()).append("/-/blob/").append(ref).append(URIUtil.encodePath(file))
+    result.append(projectCoord.toUrl()).append("/-/blob/").append(ref).append('/').append(URIUtil.encodePath(file))
     if (editor != null && editor.document.lineCount >= 1) {
         val caret = editor.caretModel.currentCaret
         val begin = caret.selectionStartPosition.line + 1
