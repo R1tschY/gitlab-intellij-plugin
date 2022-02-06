@@ -27,7 +27,13 @@ repositories {
 }
 
 dependencies {
-    implementation("com.expediagroup", "graphql-kotlin-ktor-client", "5.3.2")
+    compileOnly(kotlin("stdlib-jdk8"))
+
+    implementation("com.expediagroup", "graphql-kotlin-ktor-client", "5.3.2") {
+        exclude(group = "org.jetbrains.kotlin")
+        exclude(group = "org.jetbrains.kotlinx")
+    }
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }
@@ -74,6 +80,11 @@ tasks {
         withType<KotlinCompile> {
             kotlinOptions.jvmTarget = it
         }
+    }
+
+    withType<KotlinCompile> {
+        kotlinOptions.languageVersion = "1.6"
+        kotlinOptions.apiVersion = "1.5"
     }
 
     test {
