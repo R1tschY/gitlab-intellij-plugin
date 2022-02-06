@@ -21,4 +21,5 @@ object Notifications {
 
     const val OPEN_IN_BROWSER_FILE_IS_NOT_IN_REPO = "com.github.r1tschy.mergelab.open_in_browser.file_is_not_in_repo"
     const val OPEN_IN_BROWSER_REPO_HAS_NO_HEAD = "com.github.r1tschy.mergelab.open_in_browser.repo_has_no_head"
+    const val MISSING_DEFAULT_ACCOUNT = "com.github.r1tschy.mergelab.missing_default_account"
 }

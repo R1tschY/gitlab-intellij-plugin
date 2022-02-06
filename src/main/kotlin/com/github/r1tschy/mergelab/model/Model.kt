@@ -1,10 +1,11 @@
 package com.github.r1tschy.mergelab.model
 
+import com.intellij.collaboration.api.ServerPath
 import com.intellij.openapi.util.NlsSafe
-import java.net.URL
 import java.util.regex.Pattern
 
 const val DEFAULT_HOST: String = "gitlab.com"
+const val SERVICE_DISPLAY_NAME: String = "GitLab"
 
 val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(:\\d+)?/?")
 
@@ -12,7 +13,7 @@ data class MergeRequest(
     val conflicts: Boolean,
     val description: String?)
 
-data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: Int) {
+data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: Int) : ServerPath {
     fun toUrl(): String {
         if (https) {
             return "https://$host:$port"
@@ -39,6 +40,10 @@ data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: I
                 return "http://$host:$port"
             }
         }
+    }
+
+    override fun toString(): String {
+        return toUrl()
     }
 
     companion object {

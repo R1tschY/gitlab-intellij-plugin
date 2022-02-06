@@ -13,13 +13,17 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Settings -->
-        <applicationConfigurable
+        <projectConfigurable
                 parentId="tool"
                 instance="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"
                 id="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"
                 displayName="GitLab"/>
         <applicationService
-                serviceImplementation="com.github.r1tschy.mergelab.settings.GitLabSettingsState"/>
+                serviceImplementation="com.github.r1tschy.mergelab.settings.GitLabSettings"/>
+
+        <!-- Auth -->
+        <applicationService
+                serviceImplementation="com.github.r1tschy.mergelab.accounts.GitLabAuthService"/>
 
         <!-- Merge Request -->
         <toolWindow id="MergeLab Merge Requests" secondary="true" icon="AllIcons.General.Modified" anchor="bottom"
@@ -58,6 +62,12 @@
             <add-to-group group-id="Git.MainMenu" anchor="before" relative-to-action="Git.Configure.Remotes"/>
 
             <reference ref="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup" />
+        </group>
+
+        <group id="com.github.r1tschy.mergelab.accounts.AddAccount" text="Add GitLab Account" popup="true">
+            <!--suppress PluginXmlCapitalization -->
+            <action id="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccountFromToken"
+                    class="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccountFromToken" />
         </group>
     </actions>
 

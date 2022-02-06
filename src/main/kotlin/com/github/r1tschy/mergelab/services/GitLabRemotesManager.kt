@@ -1,17 +1,18 @@
 package com.github.r1tschy.mergelab.services
 
+import com.github.r1tschy.mergelab.accounts.GitLabAccount
+import com.github.r1tschy.mergelab.accounts.GitLabAccountsManager
+import com.github.r1tschy.mergelab.accounts.GitLabAuthService
 import com.github.r1tschy.mergelab.model.GitLabRemote
 import com.github.r1tschy.mergelab.model.GitLabService
-import com.github.r1tschy.mergelab.settings.GitLabServerSettings
 import com.github.r1tschy.mergelab.utils.Observable
+import com.intellij.collaboration.auth.AccountsListener
 import com.intellij.dvcs.repo.VcsRepositoryMappingListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
@@ -21,8 +22,15 @@ import git4idea.repo.GitRepositoryChangeListener
 @Service
 class GitLabRemotesManager(private val project: Project) {
 
+    init {
+        service<GitLabAccountsManager>().addListener(object: AccountsListener<GitLabAccount> {
+            override fun onAccountListChanged(old: Collection<GitLabAccount>, new: Collection<GitLabAccount>) {
+                updateRepositories()
+            }
+        })
+    }
+
     private val gitlabService = GitLabService()
-    private val gitlabServer = GitLabServerSettings()
 
     private var remotes by Observable(emptyList<GitLabRemote>()) { newValue ->
         project.messageBus.syncPublisher(REMOTES_CHANGES_TOPIC).onRemotesChanged(newValue)
@@ -33,15 +41,14 @@ class GitLabRemotesManager(private val project: Project) {
     }
 
     fun updateRepositories() {
-        ProgressManager.getInstance().runProcessWithProgressAsynchronously(
-            object : Task.Backgroundable(project, "Detecting GitLab remotes") {
-                override fun run(indicator: ProgressIndicator) {
-                    remotes = gitlabService.getRemotes(gitlabServer.getInstance(), project)
-                    LOG.info("Refreshed GitLab remotes: $remotes")
-                }
-            },
-            EmptyProgressIndicator()
-        )
+        object: Task.Backgroundable(project, "Detecting GitLab remotes") {
+            override fun run(indicator: ProgressIndicator) {
+                LOG.info("Detecting GitLab remotes")
+                remotes = service<GitLabAuthService>().getAccounts()
+                    .flatMap { gitlabService.getRemotes(it.server, project) }
+                LOG.info("Refreshed GitLab remotes: $remotes")
+            }
+        }.queue()
     }
 
     fun subscribeRemotesChanges(disposable: Disposable, listener: RemotesChangesListener) {
