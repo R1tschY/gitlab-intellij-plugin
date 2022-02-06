@@ -1,5 +1,6 @@
 package com.github.r1tschy.mergelab.settings
 
+import com.github.r1tschy.mergelab.model.GitLabInstanceCoord
 import com.github.r1tschy.mergelab.model.GitLabServer
 import com.github.r1tschy.mergelab.model.GitProtocol
 import com.intellij.credentialStore.CredentialAttributes
@@ -18,6 +19,10 @@ class GitLabServerSettings : GitLabServer {
 
     override fun getServerUrl(): String {
         return getApplicationState().serverUrl
+    }
+
+    fun getInstance(): GitLabInstanceCoord {
+        return GitLabInstanceCoord.parse(getApplicationState().serverUrl)
     }
 
     private fun createAccessTokenCredentialAttributes(): CredentialAttributes {

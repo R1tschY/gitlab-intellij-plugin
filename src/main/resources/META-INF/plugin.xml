@@ -11,7 +11,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.github.r1tschy.mergelab.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.r1tschy.mergelab.services.MyProjectService"/>
 
         <!-- Settings -->
         <applicationConfigurable
@@ -31,4 +30,32 @@
         <listener class="com.github.r1tschy.mergelab.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
+
+    <projectListeners>
+        <listener class="com.github.r1tschy.mergelab.services.GitLabRemotesManager$VcsChangesListener"
+                  topic="com.intellij.dvcs.repo.VcsRepositoryMappingListener"/>
+        <listener class="com.github.r1tschy.mergelab.services.GitLabRemotesManager$VcsChangesListener"
+                  topic="git4idea.repo.GitRepositoryChangeListener"/>
+    </projectListeners>
+
+    <!-- Actions -->
+    <actions>
+        <action id="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup"
+                class="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup"
+                text="Go To GitLab Project"
+                description="Show GitLab project in Browser" >
+            <add-to-group group-id="RevealGroup"/>
+            <add-to-group group-id="Vcs.Log.ContextMenu" anchor="last"/>
+            <add-to-group group-id="VcsHistoryActionsGroup" anchor="last"/>
+            <add-to-group group-id="VcsHistoryActionsGroup.Toolbar"/>
+            <add-to-group group-id="VcsSelectionHistoryDialog.Popup" anchor="last"/>
+        </action>
+
+        <group id="com.github.r1tschy.mergelab" text="GitLab" popup="true">
+            <add-to-group group-id="Git.MainMenu" anchor="before" relative-to-action="Git.Configure.Remotes"/>
+
+            <reference ref="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup" />
+        </group>
+    </actions>
+
 </idea-plugin>
