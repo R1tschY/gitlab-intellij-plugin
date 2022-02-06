@@ -24,12 +24,11 @@ import git4idea.GitUtil
 import org.jetbrains.annotations.Nls
 
 
-class OpenInBrowserActionGroup : ActionGroup("Open on GitLab", "Open item in browser", GitLabIcons.GitLab) {
-
-    init {
-        // FUTURE: >= 2022.1: REMOVE
-        isPopup = true
-    }
+class OpenInBrowserActionGroup : ActionGroup(
+    "Open on GitLab",
+    "Open item in browser",
+    GitLabIcons.GitLab
+) {
 
     override fun actionPerformed(e: AnActionEvent) {
         getContext(e.dataContext)?.let { OpenInBrowserAction(it.first()).actionPerformed(e) }
@@ -55,6 +54,11 @@ class OpenInBrowserActionGroup : ActionGroup("Open on GitLab", "Open item in bro
         // FUTURE: >= 2022.1: REMOVE
         return getContext(context)?.size == 1
     }
+
+    // FUTURE: >= 2022.1: REMOVE
+    override fun isPopup(): Boolean = true
+
+    override fun disableIfNoVisibleChildren(): Boolean = false
 
     private fun getContext(ctx: DataContext): List<Context>? {
         val project = ctx.getData(CommonDataKeys.PROJECT) ?: return null

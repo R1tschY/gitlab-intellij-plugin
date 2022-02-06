@@ -1,10 +1,10 @@
 package com.github.r1tschy.mergelab.services
 
-import com.github.r1tschy.mergelab.MyBundle
+import com.github.r1tschy.mergelab.GitlabBundle
 
 class MyApplicationService {
 
     init {
-        println(MyBundle.message("applicationService"))
+        println(GitlabBundle.message("applicationService"))
     }
 }
