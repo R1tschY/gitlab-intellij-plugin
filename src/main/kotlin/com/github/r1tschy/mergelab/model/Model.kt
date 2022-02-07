@@ -2,18 +2,21 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.r1tschy.mergelab.model
 
+import com.github.r1tschy.mergelab.exceptions.GitLabIllegalUrlException
 import com.intellij.collaboration.api.ServerPath
 import com.intellij.openapi.util.NlsSafe
 import java.util.regex.Pattern
+import kotlin.jvm.Throws
 
 const val DEFAULT_HOST: String = "gitlab.com"
+const val DEFAULT_URL: String = "https://$DEFAULT_HOST"
 const val SERVICE_DISPLAY_NAME: String = "GitLab"
 
 val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(:\\d+)?/?")
 
 data class MergeRequest(
-    val conflicts: Boolean,
-    val description: String?)
+    val conflicts: Boolean, val description: String?
+)
 
 data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: Int) : ServerPath {
     fun toUrl(): String {
@@ -49,15 +52,26 @@ data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: I
     }
 
     companion object {
+        @Throws(GitLabIllegalUrlException::class)
         fun parse(url: String): GitLabInstanceCoord {
             val matcher = GITLAB_URL_REGEX.matcher(url)
             if (matcher.matches()) {
                 val https = matcher.group(1) == "https"
-                return GitLabInstanceCoord(
-                    https, matcher.group(2),
-                    matcher.group(3)?.let { Integer.valueOf(it) } ?: (if (https) { 443 } else { 80 }))
+
+                val port: Int
+                try {
+                    port = matcher.group(3)?.let { Integer.valueOf(it) } ?: (if (https) {
+                        443
+                    } else {
+                        80
+                    })
+                } catch (e: NumberFormatException) {
+                    throw GitLabIllegalUrlException("Not a valid GitLab URL")
+                }
+
+                return GitLabInstanceCoord(https, matcher.group(2), port)
             } else {
-                throw IllegalArgumentException("Not a valid GitLab URL")
+                throw GitLabIllegalUrlException("Not a valid GitLab URL")
             }
         }
     }
@@ -85,6 +99,5 @@ data class GitLabProjectPath(val path: String) {
 }
 
 enum class GitProtocol {
-    HTTPS,
-    SSH
+    HTTPS, SSH
 }
