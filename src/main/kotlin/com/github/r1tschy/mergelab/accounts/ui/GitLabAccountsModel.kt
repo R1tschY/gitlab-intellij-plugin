@@ -2,9 +2,9 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.r1tschy.mergelab.accounts.ui
 
-import com.github.r1tschy.mergelab.accounts.GitLabAccessToken
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
-import com.github.r1tschy.mergelab.model.GitLabInstanceCoord
+import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
+import com.github.r1tschy.mergelab.model.GitLabServerUrl
 import com.intellij.collaboration.auth.ui.AccountsListModelBase
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
@@ -13,7 +13,7 @@ import com.intellij.openapi.ui.JBPopupMenu
 import com.intellij.ui.awt.RelativePoint
 import javax.swing.JComponent
 
-class GitLabAccountsModel : AccountsListModelBase<GitLabAccount, GitLabAccessToken>(), GitLabAccountsEditor {
+class GitLabAccountsModel : AccountsListModelBase<GitLabAccount, GitlabAccessToken>(), GitLabAccountsEditor {
 
     private val actionManager = ActionManager.getInstance()
 
@@ -30,14 +30,14 @@ class GitLabAccountsModel : AccountsListModelBase<GitLabAccount, GitLabAccessTok
         TODO("Not yet implemented")
     }
 
-    override fun addAccount(server: GitLabInstanceCoord, token: GitLabAccessToken) {
+    override fun addAccount(server: GitLabServerUrl, token: GitlabAccessToken) {
         val account = GitLabAccount(name = "", server = server)
         accountsListModel.add(account)
         newCredentials[account] = token
         notifyCredentialsChanged(account)
     }
 
-    override fun hasAccount(server: GitLabInstanceCoord): Boolean {
+    override fun hasAccount(server: GitLabServerUrl): Boolean {
         return accountsListModel.items.any { it.server == server }
     }
 }

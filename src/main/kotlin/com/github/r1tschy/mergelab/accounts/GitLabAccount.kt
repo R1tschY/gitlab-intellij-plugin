@@ -3,7 +3,7 @@
 package com.github.r1tschy.mergelab.accounts
 
 import com.github.r1tschy.mergelab.model.DEFAULT_HOST
-import com.github.r1tschy.mergelab.model.GitLabInstanceCoord
+import com.github.r1tschy.mergelab.model.GitLabServerUrl
 import com.intellij.collaboration.auth.ServerAccount
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.util.xmlb.annotations.Attribute
@@ -19,7 +19,7 @@ class GitLabAccount(
     override var name: String = "",
 
     @Property(style = Property.Style.ATTRIBUTE, surroundWithTag = false)
-    override val server: GitLabInstanceCoord = GitLabInstanceCoord(true, DEFAULT_HOST, 443),
+    override val server: GitLabServerUrl = GitLabServerUrl(true, DEFAULT_HOST, 443),
 
     @Attribute("id")
     override val id: String = generateId()

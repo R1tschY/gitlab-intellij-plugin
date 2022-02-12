@@ -6,10 +6,11 @@ import com.github.r1tschy.mergelab.exceptions.GitLabIllegalUrlException
 import com.intellij.collaboration.api.ServerPath
 import com.intellij.openapi.util.NlsSafe
 import java.util.regex.Pattern
-import kotlin.jvm.Throws
 
 const val DEFAULT_HOST: String = "gitlab.com"
 const val DEFAULT_URL: String = "https://$DEFAULT_HOST"
+val DEFAULT_SERVER_URL: GitLabServerUrl = GitLabServerUrl(true, DEFAULT_HOST, 443)
+
 const val SERVICE_DISPLAY_NAME: String = "GitLab"
 
 val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(:\\d+)?/?")
@@ -18,7 +19,7 @@ data class MergeRequest(
     val conflicts: Boolean, val description: String?
 )
 
-data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: Int) : ServerPath {
+data class GitLabServerUrl(val https: Boolean, val host: String, val port: Int) : ServerPath {
     fun toUrl(): String {
         if (https) {
             return "https://$host:$port"
@@ -53,7 +54,7 @@ data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: I
 
     companion object {
         @Throws(GitLabIllegalUrlException::class)
-        fun parse(url: String): GitLabInstanceCoord {
+        fun parse(url: String): GitLabServerUrl {
             val matcher = GITLAB_URL_REGEX.matcher(url)
             if (matcher.matches()) {
                 val https = matcher.group(1) == "https"
@@ -69,7 +70,7 @@ data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: I
                     throw GitLabIllegalUrlException("Not a valid GitLab URL")
                 }
 
-                return GitLabInstanceCoord(https, matcher.group(2), port)
+                return GitLabServerUrl(https, matcher.group(2), port)
             } else {
                 throw GitLabIllegalUrlException("Not a valid GitLab URL")
             }
@@ -77,7 +78,7 @@ data class GitLabInstanceCoord(val https: Boolean, val host: String, val port: I
     }
 }
 
-data class GitLabProjectCoord(val instance: GitLabInstanceCoord, val projectPath: GitLabProjectPath) {
+data class GitLabProjectCoord(val instance: GitLabServerUrl, val projectPath: GitLabProjectPath) {
     @NlsSafe
     fun toDisplayName(): String {
         return if (instance.isDefault()) {

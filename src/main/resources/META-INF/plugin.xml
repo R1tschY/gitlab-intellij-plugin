@@ -21,10 +21,6 @@
         <applicationService
                 serviceImplementation="com.github.r1tschy.mergelab.settings.GitLabSettings"/>
 
-        <!-- Auth -->
-        <applicationService
-                serviceImplementation="com.github.r1tschy.mergelab.accounts.GitLabAuthService"/>
-
         <!-- Merge Request -->
         <toolWindow id="MergeLab Merge Requests" secondary="true" icon="AllIcons.General.Modified" anchor="bottom"
                     factoryClass="com.github.r1tschy.mergelab.ui.MergeRequestsToolWindowFactory"/>

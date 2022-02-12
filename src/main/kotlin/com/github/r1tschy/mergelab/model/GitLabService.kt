@@ -19,7 +19,7 @@ data class GitLabRemote(
 
 class GitLabService {
 
-    fun getRemotes(instance: GitLabInstanceCoord, project: Project): List<GitLabRemote> {
+    fun getRemotes(instance: GitLabServerUrl, project: Project): List<GitLabRemote> {
         val repositoryManager = GitUtil.getRepositoryManager(project)
 
         val remotes: MutableList<GitLabRemote> = ArrayList()
@@ -34,7 +34,7 @@ class GitLabService {
         return remotes
     }
 
-    fun getMatchingRemote(repo: GitRepository, remote: GitRemote, instance: GitLabInstanceCoord): GitLabRemote? {
+    fun getMatchingRemote(repo: GitRepository, remote: GitRemote, instance: GitLabServerUrl): GitLabRemote? {
         for (url in remote.urls) {
             getMatchingRemoteFromUrl(repo, remote, url, instance)?.let { return it }
         }
@@ -45,7 +45,7 @@ class GitLabService {
         repo: GitRepository,
         remote: GitRemote,
         remoteUrl: String,
-        instance: GitLabInstanceCoord
+        instance: GitLabServerUrl
     ): GitLabRemote? {
         val sshUrlMatcher = SSH_REMOTE_URL_REGEX.matcher(remoteUrl)
         if (sshUrlMatcher.matches()) {

@@ -2,9 +2,11 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.r1tschy.mergelab.accounts
 
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import org.jetbrains.annotations.CalledInAny
 
+@Service
 class GitLabAuthService {
     private val accountsManager: GitLabAccountsManager get() = service()
 
@@ -13,4 +15,6 @@ class GitLabAuthService {
 
     @CalledInAny
     fun getAccounts(): Set<GitLabAccount> = accountsManager.accounts
+
+    fun getToken(account: GitLabAccount): GitlabAccessToken? = accountsManager.findCredentials(account)
 }

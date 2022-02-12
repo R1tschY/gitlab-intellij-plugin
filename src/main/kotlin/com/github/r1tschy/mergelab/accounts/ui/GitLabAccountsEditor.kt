@@ -2,13 +2,13 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.r1tschy.mergelab.accounts.ui
 
-import com.github.r1tschy.mergelab.accounts.GitLabAccessToken
-import com.github.r1tschy.mergelab.model.GitLabInstanceCoord
+import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
+import com.github.r1tschy.mergelab.model.GitLabServerUrl
 import com.intellij.openapi.actionSystem.DataKey
 
 interface GitLabAccountsEditor {
-    fun addAccount(server: GitLabInstanceCoord, token: GitLabAccessToken)
-    fun hasAccount(server: GitLabInstanceCoord): Boolean
+    fun addAccount(server: GitLabServerUrl, token: GitlabAccessToken)
+    fun hasAccount(server: GitLabServerUrl): Boolean
 
     companion object {
         val DATA_KEY: DataKey<GitLabAccountsEditor> =

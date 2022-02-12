@@ -10,14 +10,14 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 
 @Service
-class GitLabAccountsManager : AccountManagerBase<GitLabAccount, GitLabAccessToken>(SERVICE_DISPLAY_NAME) {
+internal class GitLabAccountsManager : AccountManagerBase<GitLabAccount, GitlabAccessToken>(SERVICE_DISPLAY_NAME) {
     override fun accountsRepository(): AccountsRepository<GitLabAccount> = service<GitLabSettings>()
 
-    override fun deserializeCredentials(credentials: String): GitLabAccessToken {
-        return GitLabAccessToken(credentials)
+    override fun deserializeCredentials(credentials: String): GitlabAccessToken {
+        return GitlabAccessToken(credentials)
     }
 
-    override fun serializeCredentials(credentials: GitLabAccessToken): String {
+    override fun serializeCredentials(credentials: GitlabAccessToken): String {
         return credentials.asString()
     }
 }

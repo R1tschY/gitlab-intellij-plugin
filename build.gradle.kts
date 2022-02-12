@@ -15,6 +15,10 @@ plugins {
     // Gradle Qodana Plugin
     id("org.jetbrains.qodana") version "0.1.13"
 
+    // kotlinx.serialization
+    kotlin("plugin.serialization") version "1.6.10"
+
+    // GraphQL query objects generator
     id("com.expediagroup.graphql") version "5.3.2"
 }
 
@@ -29,7 +33,14 @@ repositories {
 dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
 
-    implementation("com.expediagroup", "graphql-kotlin-ktor-client", "5.3.2") {
+    compileOnly("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.3.2")
+
+    implementation("com.expediagroup", "graphql-kotlin-client", "5.3.2") {
+        exclude(group = "org.jetbrains.kotlin")
+        exclude(group = "org.jetbrains.kotlinx")
+    }
+
+    implementation("com.expediagroup", "graphql-kotlin-client-serialization", "5.3.2") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
     }
@@ -66,7 +77,8 @@ qodana {
 graphql {
     client {
         endpoint = "https://gitlab.com/api/graphql"
-        packageName = "com.github.r1tschy.mergelab.gitlabapi"
+        packageName = "com.github.r1tschy.mergelab.api.graphql.queries"
+        serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
     }
 }
 
