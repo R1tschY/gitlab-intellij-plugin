@@ -1,7 +1,10 @@
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun properties(key: String) = project.findProperty(key).toString()
+
+val useJackson: Boolean = properties("useJacksonSerializer") == "true"
 
 plugins {
     // Java support
@@ -33,16 +36,21 @@ repositories {
 dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
 
-    compileOnly("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.3.2")
-
     implementation("com.expediagroup", "graphql-kotlin-client", "5.3.2") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
     }
 
-    implementation("com.expediagroup", "graphql-kotlin-client-serialization", "5.3.2") {
-        exclude(group = "org.jetbrains.kotlin")
-        exclude(group = "org.jetbrains.kotlinx")
+    if (useJackson) {
+        implementation("com.expediagroup", "graphql-kotlin-client-jackson", "5.3.2") {
+            exclude(group = "org.jetbrains.kotlin")
+            exclude(group = "org.jetbrains.kotlinx")
+        }
+    } else {
+        implementation("com.expediagroup", "graphql-kotlin-client-serialization", "5.3.2") {
+            exclude(group = "org.jetbrains.kotlin")
+            exclude(group = "org.jetbrains.kotlinx")
+        }
     }
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
@@ -78,7 +86,7 @@ graphql {
     client {
         endpoint = "https://gitlab.com/api/graphql"
         packageName = "com.github.r1tschy.mergelab.api.graphql.queries"
-        serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
+        serializer = if (useJackson) { GraphQLSerializer.JACKSON } else { GraphQLSerializer.KOTLINX }
     }
 }
 

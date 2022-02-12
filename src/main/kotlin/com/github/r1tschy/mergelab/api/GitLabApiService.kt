@@ -1,6 +1,6 @@
 package com.github.r1tschy.mergelab.api
 
-import com.expediagroup.graphql.client.serialization.GraphQLClientKotlinxSerializer
+import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
 import com.github.r1tschy.mergelab.accounts.GitLabAuthService
@@ -15,7 +15,7 @@ import com.intellij.openapi.components.service
 @Service
 class GitLabApiService {
 
-    private val serializer: GraphQLClientSerializer = GraphQLClientKotlinxSerializer()
+    private val serializer: GraphQLClientSerializer = GraphQLClientJacksonSerializer()
 
     private val authService: GitLabAuthService = service()
 
