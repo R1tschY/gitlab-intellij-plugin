@@ -9,7 +9,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.ThrowableConvertor
 import java.io.IOException
 import java.io.InputStream
-import kotlin.reflect.KClass
 
 const val JSON_MIME_TYPE = "application/json"
 
@@ -36,6 +35,7 @@ class BearerAuthorization(private val token: GitlabAccessToken) : HttpRequestCus
 interface HttpResponse {
     fun getHeader(key: String): String?
     fun <T> readBody(converter: ThrowableConvertor<InputStream, T, IOException>): T
+    fun readBodyToString(): String
 }
 
 interface HttpRequest<T> {
@@ -46,10 +46,12 @@ interface HttpRequest<T> {
     fun readContent(response: HttpResponse): T
 }
 
-interface GetJsonRequest<T : Any> {
+interface JsonRequest<T : Any> {
+    val url: String? get() = null
+    val path: String get() = ""
     val parameters: Map<String, String>? get() = null
 
-    fun responseType(): KClass<T>
+    fun deserialize(rawResponse: String, serializer: JsonSerializer): T
 }
 
 
@@ -61,6 +63,12 @@ interface HttpClient {
 
     fun <T> execute(
         request: HttpRequest<T>,
+        progressIndicator: ProgressIndicator,
+        requestCustomizer: HttpRequestCustomizer = NoopHttpRequestCustomizer()
+    ): T
+
+    fun <T : Any> execute(
+        request: JsonRequest<T>,
         progressIndicator: ProgressIndicator,
         requestCustomizer: HttpRequestCustomizer = NoopHttpRequestCustomizer()
     ): T

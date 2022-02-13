@@ -1,6 +1,6 @@
 // Copyright 2022 Richard Liebscher.
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.github.r1tschy.mergelab.integration
+package com.github.r1tschy.mergelab.repository
 
 import com.intellij.dvcs.hosting.RepositoryListLoader
 import com.intellij.openapi.project.Project

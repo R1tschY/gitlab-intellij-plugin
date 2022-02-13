@@ -36,9 +36,17 @@ class IntellijHttpResponse(private val request: HttpRequests.Request, private va
 
         return inputStream.use { converter.convert(it) }
     }
+
+    override fun readBodyToString(): String {
+        return request.readString(indicator)
+    }
 }
 
-class IntellijHttpClient(private val url: String, private val serializer: GraphQLClientSerializer) : HttpClient {
+class IntellijHttpClient(
+    private val url: String,
+    private val serializer: GraphQLClientSerializer,
+    private val restSerializer: JsonSerializer,
+) : HttpClient {
     private val sessionCustomizers: MutableList<HttpRequestCustomizer> = mutableListOf()
 
     override fun setSessionCustomizer(customizer: HttpRequestCustomizer) {
@@ -59,12 +67,34 @@ class IntellijHttpClient(private val url: String, private val serializer: GraphQ
             }
             .connect {
                 val connection = it.connection as HttpURLConnection
+                // TODO check content type / encoding
                 if (connection.responseCode >= 400) {
                     // TODO error
                 }
 
                 request.readContent(IntellijHttpResponse(it, progressIndicator))
             }
+    }
+
+    override fun <T : Any> execute(
+        request: JsonRequest<T>,
+        progressIndicator: ProgressIndicator,
+        requestCustomizer: HttpRequestCustomizer
+    ): T {
+        return execute(
+            object : HttpRequest<T> {
+                override val path: String
+                    get() = request.path
+                override val url: String?
+                    get() = request.url
+
+                override fun readContent(response: HttpResponse): T {
+                    return request.deserialize(response.readBodyToString(), restSerializer)
+                }
+            },
+            progressIndicator,
+            requestCustomizer
+        )
     }
 
     override fun <T : Any> query(

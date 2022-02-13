@@ -1,5 +1,6 @@
 package com.github.r1tschy.mergelab.api.graphql
 
+import com.github.r1tschy.mergelab.accounts.GitLabUserApiService
 import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
 import com.github.r1tschy.mergelab.accounts.UserDetails
 import com.github.r1tschy.mergelab.api.*
@@ -12,7 +13,7 @@ import java.io.IOException
 import javax.imageio.ImageIO
 
 
-class GraphQlServices(private val httpClient: HttpClient, private val token: GitlabAccessToken): GitLabApi {
+class GraphQlServices(private val httpClient: HttpClient, private val token: GitlabAccessToken): GitLabUserApiService {
 
     @RequiresBackgroundThread
     override fun getUserDetails(

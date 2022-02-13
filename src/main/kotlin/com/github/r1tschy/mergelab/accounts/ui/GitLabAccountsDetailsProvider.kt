@@ -5,9 +5,7 @@ package com.github.r1tschy.mergelab.accounts.ui
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
 import com.github.r1tschy.mergelab.accounts.GitLabAvatarService
 import com.github.r1tschy.mergelab.accounts.UserDetails
-import com.github.r1tschy.mergelab.api.GitLabApi
 import com.github.r1tschy.mergelab.api.GitLabApiService
-import com.github.r1tschy.mergelab.exceptions.UnauthorizedAccessException
 import com.intellij.collaboration.async.CompletableFutureUtil.submitIOTask
 import com.intellij.collaboration.auth.ui.LoadingAccountsDetailsProvider
 import com.intellij.collaboration.util.ProgressIndicatorsProvider
@@ -25,14 +23,9 @@ internal class GitLabAccountsDetailsProvider(
         account: GitLabAccount,
         indicator: ProgressIndicator
     ): CompletableFuture<DetailsLoadingResult<UserDetails>> {
-        val api: GitLabApi
-        try {
-            api = accountsModel.newCredentials[account]
-                ?.let { service<GitLabApiService>().apiFor(account.server, it) }
-                ?: service<GitLabApiService>().apiFor(account)
-        } catch (e: UnauthorizedAccessException) {
-            return completedFuture(error("Missing access token"))
-        }
+        val api = accountsModel.newCredentials[account]
+            ?.let { service<GitLabApiService>().apiFor(account.server, it) }
+            ?: return completedFuture(error("Missing access token"))
 
         return ProgressManager.getInstance()
             .submitIOTask(indicator) {

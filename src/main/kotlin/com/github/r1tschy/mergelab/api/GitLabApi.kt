@@ -1,5 +1,5 @@
 package com.github.r1tschy.mergelab.api
 
-import com.github.r1tschy.mergelab.accounts.GitLabUserService
+import com.github.r1tschy.mergelab.accounts.GitLabUserApiService
 
-interface GitLabApi: GitLabUserService
+interface GitLabApi: GitLabUserApiService, GitlabProtectedBranchesApiService

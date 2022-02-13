@@ -42,6 +42,7 @@ dependencies {
     }
 
     if (useJackson) {
+        implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.8")
         implementation("com.expediagroup", "graphql-kotlin-client-jackson", "5.3.2") {
             exclude(group = "org.jetbrains.kotlin")
             exclude(group = "org.jetbrains.kotlinx")

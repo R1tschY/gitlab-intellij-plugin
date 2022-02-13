@@ -12,7 +12,7 @@ import com.intellij.util.xmlb.annotations.Tag
 
 
 @State(
-    name = "com.github.r1tschy.mergelab.settings.GitLabSettings",
+    name = "com.github.r1tschy.mergelab.GitLabSettings",
     storages = [Storage("mergelab.xml")]
 )
 class GitLabSettings : AccountsRepository<GitLabAccount>, PersistentStateComponent<GitLabSettingsState> {

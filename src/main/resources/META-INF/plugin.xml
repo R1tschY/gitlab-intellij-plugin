@@ -21,9 +21,17 @@
         <applicationService
                 serviceImplementation="com.github.r1tschy.mergelab.settings.GitLabSettings"/>
 
+        <projectService serviceImplementation="com.github.r1tschy.mergelab.repository.GitlabProtectedBranchCache"/>
+
         <!-- Merge Request -->
         <toolWindow id="MergeLab Merge Requests" secondary="true" icon="AllIcons.General.Modified" anchor="bottom"
                     factoryClass="com.github.r1tschy.mergelab.ui.MergeRequestsToolWindowFactory"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="Git4Idea">
+        <gitRepositoryHostingService implementation="com.github.r1tschy.mergelab.repository.GitLabRepositoryHostingService"/>
+        <gitProtectedBranchProvider implementation="com.github.r1tschy.mergelab.repository.GitlabProtectedBranchProvider"/>
+        <gitFetchHandler implementation="com.github.r1tschy.mergelab.repository.GitlabProtectedBranchPatternsFetcher" />
     </extensions>
 
     <applicationListeners>
@@ -57,12 +65,12 @@
         <group id="com.github.r1tschy.mergelab" text="GitLab" popup="true">
             <add-to-group group-id="Git.MainMenu" anchor="before" relative-to-action="Git.Configure.Remotes"/>
 
-            <reference ref="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup" />
+            <reference ref="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup"/>
         </group>
 
         <!--suppress PluginXmlCapitalization -->
         <action id="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccount"
-                class="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccount" />
+                class="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccount"/>
     </actions>
 
 </idea-plugin>

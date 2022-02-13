@@ -14,7 +14,7 @@ data class AccessTokenDetails(val scopes: List<String>)
 
 data class UserDetails(val username: String, override val name: String, val avatarUrl: String?): AccountDetails
 
-interface GitLabUserService {
+interface GitLabUserApiService {
     @RequiresBackgroundThread
     fun getUserDetails(processIndicator: ProgressIndicator): UserDetails
 

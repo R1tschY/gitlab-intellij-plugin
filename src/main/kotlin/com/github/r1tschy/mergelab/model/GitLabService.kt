@@ -3,6 +3,7 @@
 package com.github.r1tschy.mergelab.model
 
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import git4idea.GitUtil
 import git4idea.repo.GitRemote
 import git4idea.repo.GitRepository
@@ -14,11 +15,14 @@ val SSH_REMOTE_URL_REGEX: Pattern = Pattern.compile("git@([^:]+):(.*).git")
 
 
 data class GitLabRemote(
-    val repo: GitRepository, val remote: GitRemote, val remoteUrl: String, val projectCoord: GitLabProjectCoord)
+    val repo: GitRepository, val remote: GitRemote, val remoteUrl: String, val projectCoord: GitLabProjectCoord
+)
 
 
-class GitLabService {
+// TODO: rename!
+object GitLabService {
 
+    @RequiresBackgroundThread
     fun getRemotes(instance: GitLabServerUrl, project: Project): List<GitLabRemote> {
         val repositoryManager = GitUtil.getRepositoryManager(project)
 
@@ -36,23 +40,18 @@ class GitLabService {
 
     fun getMatchingRemote(repo: GitRepository, remote: GitRemote, instance: GitLabServerUrl): GitLabRemote? {
         for (url in remote.urls) {
-            getMatchingRemoteFromUrl(repo, remote, url, instance)?.let { return it }
+            getProjectFromUrl(url, instance)?.let { return GitLabRemote(repo, remote, url, it) }
         }
         return null
     }
 
-    fun getMatchingRemoteFromUrl(
-        repo: GitRepository,
-        remote: GitRemote,
-        remoteUrl: String,
-        instance: GitLabServerUrl
-    ): GitLabRemote? {
+    fun getProjectFromUrl(remoteUrl: String, instance: GitLabServerUrl): GitLabProjectCoord? {
         val sshUrlMatcher = SSH_REMOTE_URL_REGEX.matcher(remoteUrl)
         if (sshUrlMatcher.matches()) {
             // SSH
             val path = sshUrlMatcher.group(2)
             if (instance.host == sshUrlMatcher.group(1)) {
-                return GitLabRemote(repo, remote, remoteUrl, GitLabProjectCoord(instance, GitLabProjectPath(path)))
+                return GitLabProjectCoord(instance, GitLabProjectPath(path))
             }
         } else {
             // HTTPS
@@ -67,12 +66,7 @@ class GitLabService {
                 && ((instance.https && url.protocol == "https") || (!instance.https && url.protocol == "http"))
                 && url.path.endsWith(".git")
             ) {
-                return GitLabRemote(
-                    repo,
-                    remote,
-                    remoteUrl,
-                    GitLabProjectCoord(instance, GitLabProjectPath(url.path.removeSuffix(".git").removePrefix("/")))
-                )
+                return GitLabProjectCoord(instance, GitLabProjectPath(url.path.removeSuffix(".git").removePrefix("/")))
             }
         }
 

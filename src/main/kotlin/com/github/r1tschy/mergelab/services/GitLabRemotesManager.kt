@@ -5,9 +5,11 @@ package com.github.r1tschy.mergelab.services
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
 import com.github.r1tschy.mergelab.accounts.GitLabAccountsManager
 import com.github.r1tschy.mergelab.accounts.GitLabAuthService
+import com.github.r1tschy.mergelab.model.GitLabProjectCoord
 import com.github.r1tschy.mergelab.model.GitLabRemote
 import com.github.r1tschy.mergelab.model.GitLabService
 import com.github.r1tschy.mergelab.utils.Observable
+import com.github.r1tschy.mergelab.utils.computeInEdt
 import com.intellij.collaboration.auth.AccountsListener
 import com.intellij.dvcs.repo.VcsRepositoryMappingListener
 import com.intellij.openapi.Disposable
@@ -32,9 +34,7 @@ class GitLabRemotesManager(private val project: Project) {
         })
     }
 
-    private val gitlabService = GitLabService()
-
-    private var remotes by Observable(emptyList<GitLabRemote>()) { newValue ->
+    var remotes by Observable(emptyList<GitLabRemote>()) { newValue ->
         project.messageBus.syncPublisher(REMOTES_CHANGES_TOPIC).onRemotesChanged(newValue)
     }
 
@@ -42,12 +42,14 @@ class GitLabRemotesManager(private val project: Project) {
         return remotes.filter { it.repo == gitRepository }
     }
 
+    val gitLabProjects: List<GitLabProjectCoord> get() = remotes.map { it.projectCoord }
+
     fun updateRepositories() {
         object: Task.Backgroundable(project, "Detecting GitLab remotes") {
             override fun run(indicator: ProgressIndicator) {
                 LOG.info("Detecting GitLab remotes")
-                remotes = service<GitLabAuthService>().getAccounts()
-                    .flatMap { gitlabService.getRemotes(it.server, project) }
+                remotes = computeInEdt { service<GitLabAuthService>().getAccounts() }
+                    .flatMap { GitLabService.getRemotes(it.server, project) }
                 LOG.info("Refreshed GitLab remotes: $remotes")
             }
         }.queue()

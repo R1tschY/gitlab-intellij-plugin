@@ -13,7 +13,7 @@ val DEFAULT_SERVER_URL: GitLabServerUrl = GitLabServerUrl(true, DEFAULT_HOST, 44
 
 const val SERVICE_DISPLAY_NAME: String = "GitLab"
 
-val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(:\\d+)?/?")
+val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(?::(\\d+))?/?")
 
 data class MergeRequest(
     val conflicts: Boolean, val description: String?
@@ -52,6 +52,10 @@ data class GitLabServerUrl(val https: Boolean, val host: String, val port: Int) 
         return toUrl()
     }
 
+    fun isReferencedBy(remoteUrl: String): Boolean {
+        return GitLabService.getProjectFromUrl(remoteUrl, this) != null
+    }
+
     companion object {
         @Throws(GitLabIllegalUrlException::class)
         fun parse(url: String): GitLabServerUrl {
@@ -67,29 +71,29 @@ data class GitLabServerUrl(val https: Boolean, val host: String, val port: Int) 
                         80
                     })
                 } catch (e: NumberFormatException) {
-                    throw GitLabIllegalUrlException("Not a valid GitLab URL")
+                    throw GitLabIllegalUrlException("Not a valid GitLab URL (illegal port ${matcher.group(3)}): $url")
                 }
 
                 return GitLabServerUrl(https, matcher.group(2), port)
             } else {
-                throw GitLabIllegalUrlException("Not a valid GitLab URL")
+                throw GitLabIllegalUrlException("Not a valid GitLab URL: $url")
             }
         }
     }
 }
 
-data class GitLabProjectCoord(val instance: GitLabServerUrl, val projectPath: GitLabProjectPath) {
+data class GitLabProjectCoord(val server: GitLabServerUrl, val projectPath: GitLabProjectPath) {
     @NlsSafe
     fun toDisplayName(): String {
-        return if (instance.isDefault()) {
-            "${instance.toDisplayName()}/${projectPath.toDisplayName()}"
+        return if (server.isDefault()) {
+            "${server.toDisplayName()}/${projectPath.toDisplayName()}"
         } else {
             projectPath.toDisplayName()
         }
     }
 
     fun toUrl(): String {
-        return "${instance.toUrl()}/${projectPath.path}"
+        return "${server.toUrl()}/${projectPath.path}"
     }
 }
 
