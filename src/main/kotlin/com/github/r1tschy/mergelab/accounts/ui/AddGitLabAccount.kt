@@ -8,6 +8,7 @@ import com.github.r1tschy.mergelab.accounts.UserDetails
 import com.github.r1tschy.mergelab.accounts.buildNewTokenUrl
 import com.github.r1tschy.mergelab.api.GitLabApiService
 import com.github.r1tschy.mergelab.exceptions.GitLabIllegalUrlException
+import com.github.r1tschy.mergelab.model.DEFAULT_URL
 import com.github.r1tschy.mergelab.model.GitLabServerUrl
 import com.intellij.collaboration.async.CompletableFutureUtil
 import com.intellij.collaboration.async.CompletableFutureUtil.handleOnEdt
@@ -62,8 +63,9 @@ class AddGitLabAccount : DumbAwareAction() {
 internal class AddGitLabAccountFromTokenDialog(
     project: Project?, parent: Component?
 ) : DialogWrapper(project, parent, false, IdeModalityType.PROJECT) {
+    var server: String = DEFAULT_URL
     var token: String = ""
-    var server: String = ""
+
     var userDetails: UserDetails? = null
 
     private val serverTextField = JBTextField()

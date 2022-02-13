@@ -32,8 +32,10 @@ import javax.swing.ListCellRenderer
 import javax.swing.ListSelectionModel
 
 internal object AccountsPanelFactory {
-    fun <A : Account, Cred, R> create(model: AccountsListModel<A, Cred>,
-                                      listCellRendererFactory: () -> R): JComponent
+    fun <A : Account, Cred, R> create(
+        model: AccountsListModel<A, Cred>,
+        listCellRendererFactory: () -> R
+    ): JComponent
             where R : ListCellRenderer<A>, R : JComponent {
 
         val accountsListModel = model.accountsListModel
@@ -51,12 +53,19 @@ internal object AccountsPanelFactory {
 
         accountsList.emptyText.apply {
             appendText(CollaborationToolsBundle.message("accounts.none.added"))
-            appendSecondaryText(CollaborationToolsBundle.message("accounts.add.link"), SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
+            appendSecondaryText(
+                CollaborationToolsBundle.message("accounts.add.link"),
+                SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES
+            ) {
                 val event = it.source
                 val relativePoint = if (event is MouseEvent) RelativePoint(event) else null
                 model.addAccount(accountsList, relativePoint)
             }
-            appendSecondaryText(" (${KeymapUtil.getFirstKeyboardShortcutText(CommonShortcuts.getNew())})", StatusText.DEFAULT_ATTRIBUTES, null)
+            appendSecondaryText(
+                " (${KeymapUtil.getFirstKeyboardShortcutText(CommonShortcuts.getNew())})",
+                StatusText.DEFAULT_ATTRIBUTES,
+                null
+            )
         }
 
         model.busyStateModel.addListener {
@@ -75,8 +84,15 @@ internal object AccountsPanelFactory {
 internal fun Row.gitlabAccountsPanel(
     disposable: Disposable,
     indicatorProvider: ProgressIndicatorsProvider
-): Cell<JComponent> =
-    gitlabAccountsPanel(service(), GitLabAccountsModel(), GitLabAccountsDetailsProvider(indicatorProvider), disposable)
+): Cell<JComponent> {
+    val accountsModel = GitLabAccountsModel()
+    return gitlabAccountsPanel(
+        service(),
+        accountsModel,
+        GitLabAccountsDetailsProvider(indicatorProvider, accountsModel),
+        disposable
+    )
+}
 
 
 internal fun Row.gitlabAccountsPanel(

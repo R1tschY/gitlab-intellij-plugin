@@ -16,23 +16,26 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import java.awt.Image
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletableFuture.completedFuture
 
 internal class GitLabAccountsDetailsProvider(
-    progressIndicatorsProvider: ProgressIndicatorsProvider
-): LoadingAccountsDetailsProvider<GitLabAccount, UserDetails>(progressIndicatorsProvider) {
+    progressIndicatorsProvider: ProgressIndicatorsProvider, private val accountsModel: GitLabAccountsModel
+) : LoadingAccountsDetailsProvider<GitLabAccount, UserDetails>(progressIndicatorsProvider) {
     override fun scheduleLoad(
         account: GitLabAccount,
         indicator: ProgressIndicator
     ): CompletableFuture<DetailsLoadingResult<UserDetails>> {
+        val api: GitLabApi
+        try {
+            api = accountsModel.newCredentials[account]
+                ?.let { service<GitLabApiService>().apiFor(account.server, it) }
+                ?: service<GitLabApiService>().apiFor(account)
+        } catch (e: UnauthorizedAccessException) {
+            return completedFuture(error("Missing access token"))
+        }
+
         return ProgressManager.getInstance()
             .submitIOTask(indicator) {
-                val api: GitLabApi
-                try {
-                    api = service<GitLabApiService>().apiFor(account)
-                } catch (exp: UnauthorizedAccessException) {
-                    return@submitIOTask error("Missing access token")
-                }
-
                 val userDetails = api.getUserDetails(it)
                 val image = userDetails.avatarUrl?.let { url ->
                     service<GitLabAvatarService>().loadAvatarSync(api, url, indicator)
