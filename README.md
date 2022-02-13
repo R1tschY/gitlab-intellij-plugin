@@ -15,7 +15,9 @@
 - [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
 
 <!-- Plugin description -->
-View and manage GitLab Merge Requests from IntelliJ.<br>
+GitLab Support for IntelliJ:
+ * Open files and commits in Browser
+ * View and manage GitLab Merge Requests from IntelliJ.<br>
 <!-- Plugin description end -->
 
 ## Installation

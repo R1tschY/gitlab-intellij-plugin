@@ -3,6 +3,7 @@
 package com.github.r1tschy.mergelab.accounts.ui
 
 import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
+import com.github.r1tschy.mergelab.accounts.REQUIRED_SCOPES
 import com.github.r1tschy.mergelab.accounts.UserDetails
 import com.github.r1tschy.mergelab.accounts.buildNewTokenUrl
 import com.github.r1tschy.mergelab.api.GitLabApiService
@@ -28,19 +29,26 @@ import com.intellij.ui.dsl.builder.COLUMNS_SHORT
 import com.intellij.ui.dsl.builder.bindText
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.layout.ComponentPredicate
 import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
 
-class AddGitLabAccountFromToken : DumbAwareAction() {
+/**
+ * Add GitLab account action (using personal access token - PAT)
+ */
+class AddGitLabAccount : DumbAwareAction() {
     override fun update(e: AnActionEvent) {
         e.presentation.isEnabledAndVisible = e.getData(GitLabAccountsEditor.DATA_KEY) != null
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        val accountsEditor = e.getData(GitLabAccountsEditor.DATA_KEY)!!
-        val dialog = AddGitLabAccountFromTokenDialog(e.project, e.getData(CONTEXT_COMPONENT))
+        doAction(e.project, e.getData(GitLabAccountsEditor.DATA_KEY)!!, e.getData(CONTEXT_COMPONENT))
+    }
+
+    private fun doAction(project: Project?, accountsEditor: GitLabAccountsEditor, contextComponent: Component?) {
+        val dialog = AddGitLabAccountFromTokenDialog(project, contextComponent)
 
         if (dialog.showAndGet()) {
             accountsEditor.addAccount(
@@ -51,7 +59,7 @@ class AddGitLabAccountFromToken : DumbAwareAction() {
 }
 
 
-private class AddGitLabAccountFromTokenDialog(
+internal class AddGitLabAccountFromTokenDialog(
     project: Project?, parent: Component?
 ) : DialogWrapper(project, parent, false, IdeModalityType.PROJECT) {
     var token: String = ""
@@ -64,7 +72,7 @@ private class AddGitLabAccountFromTokenDialog(
     private var tokenError: String? = null
 
     init {
-        title = "Log In to GitLab"
+        title = "Log In To GitLab Using Personal Access Token"
         setOKButtonText("Log In")
 
         init()
@@ -77,8 +85,9 @@ private class AddGitLabAccountFromTokenDialog(
     override fun createCenterPanel(): JComponent {
         return panel {
             row("Server:") {
+                resizableRow()
                 cell(serverTextField)
-                    .columns(COLUMNS_SHORT)
+                    .horizontalAlign(HorizontalAlign.FILL)
                     .bindText(::server)
                     .validationOnInput {
                         if (it.text.isNullOrBlank()) {
@@ -94,11 +103,12 @@ private class AddGitLabAccountFromTokenDialog(
 
             row("Token:") {
                 cell(tokenTextField)
+                    .comment("Following scopes are required: ${REQUIRED_SCOPES.joinToString(", ")}")
                     .columns(COLUMNS_SHORT)
                     .bindText(::token)
                     .validationOnApply { tokenError?.let { error(it) } }
 
-                button("Generate\u2026") { browseNewToken() }
+                button("Create New\u2026") { browseNewToken() }
                     .enabledIf(ServerUrlValidPredicate(serverTextField))
             }
         }

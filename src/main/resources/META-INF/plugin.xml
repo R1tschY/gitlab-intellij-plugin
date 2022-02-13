@@ -13,7 +13,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Settings -->
-        <projectConfigurable
+        <applicationConfigurable
                 parentId="tool"
                 instance="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"
                 id="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"
@@ -60,11 +60,9 @@
             <reference ref="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup" />
         </group>
 
-        <group id="com.github.r1tschy.mergelab.accounts.AddAccount" text="Add GitLab Account" popup="true">
-            <!--suppress PluginXmlCapitalization -->
-            <action id="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccountFromToken"
-                    class="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccountFromToken" />
-        </group>
+        <!--suppress PluginXmlCapitalization -->
+        <action id="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccount"
+                class="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccount" />
     </actions>
 
 </idea-plugin>
