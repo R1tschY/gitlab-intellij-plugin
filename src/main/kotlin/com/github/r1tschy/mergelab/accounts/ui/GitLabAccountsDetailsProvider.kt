@@ -3,7 +3,9 @@
 package com.github.r1tschy.mergelab.accounts.ui
 
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
+import com.github.r1tschy.mergelab.accounts.GitLabAuthService
 import com.github.r1tschy.mergelab.accounts.GitLabAvatarService
+import com.github.r1tschy.mergelab.api.GitLabApi
 import com.github.r1tschy.mergelab.api.GitLabApiService
 import com.github.r1tschy.mergelab.api.UserDetails
 import com.intellij.collaboration.async.CompletableFutureUtil.submitIOTask
@@ -23,7 +25,7 @@ internal class GitLabAccountsDetailsProvider(
         account: GitLabAccount,
         indicator: ProgressIndicator
     ): CompletableFuture<DetailsLoadingResult<UserDetails>> {
-        val api = accountsModel.newCredentials[account]
+        val api: GitLabApi = (accountsModel.newCredentials[account] ?: service<GitLabAuthService>().getToken(account))
             ?.let { service<GitLabApiService>().apiFor(account.server, it) }
             ?: return completedFuture(error("Missing access token"))
 
