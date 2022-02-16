@@ -8,6 +8,7 @@ import com.github.r1tschy.mergelab.accounts.GitLabAvatarService
 import com.github.r1tschy.mergelab.api.GitLabApi
 import com.github.r1tschy.mergelab.api.GitLabApiService
 import com.github.r1tschy.mergelab.api.UserDetails
+import com.github.r1tschy.mergelab.exceptions.UnauthorizedAccessException
 import com.intellij.collaboration.async.CompletableFutureUtil.submitIOTask
 import com.intellij.collaboration.auth.ui.LoadingAccountsDetailsProvider
 import com.intellij.collaboration.util.ProgressIndicatorsProvider
@@ -27,18 +28,22 @@ internal class GitLabAccountsDetailsProvider(
     ): CompletableFuture<DetailsLoadingResult<UserDetails>> {
         val api: GitLabApi = (accountsModel.newCredentials[account] ?: service<GitLabAuthService>().getToken(account))
             ?.let { service<GitLabApiService>().apiFor(account.server, it) }
-            ?: return completedFuture(error("Missing access token"))
+            ?: return completedFuture(tokenError("Missing access token"))
 
         return ProgressManager.getInstance()
             .submitIOTask(indicator) {
-                val userDetails = api.getUserDetails(it)
-                val image = userDetails.avatarLocation?.let { location ->
-                    service<GitLabAvatarService>().loadAvatarSync(api, location, indicator)
+                try {
+                    val userDetails = api.getUserDetails(it)
+                    val image = userDetails.avatarLocation?.let { location ->
+                        service<GitLabAvatarService>().loadAvatarSync(api, location, indicator)
+                    }
+                    success(userDetails, image)
+                } catch (e: UnauthorizedAccessException) {
+                    tokenError("Access token is not valid")
                 }
-                success(userDetails, image)
             }
     }
 
-    private fun error(message: String) = DetailsLoadingResult<UserDetails>(null, null, message, true)
+    private fun tokenError(message: String) = DetailsLoadingResult<UserDetails>(null, null, message, true)
     private fun success(user: UserDetails, image: Image?) = DetailsLoadingResult(user, image, null, false)
 }
