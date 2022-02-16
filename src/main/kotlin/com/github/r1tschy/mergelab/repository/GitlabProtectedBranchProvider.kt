@@ -22,7 +22,7 @@ import git4idea.repo.GitRepository
  */
 class GitlabProtectedBranchProvider : GitProtectedBranchProvider {
     override fun doGetProtectedBranchPatterns(project: Project): List<String> {
-        val remotesManager: GitLabRemotesManager = service()
+        val remotesManager: GitLabRemotesManager = project.service()
         val cache: GitlabProtectedBranchCache = project.service()
         return remotesManager.gitLabProjects.flatMap { cache.getProtectedBranchPatternsFor(it) ?: emptyList() }
     }
