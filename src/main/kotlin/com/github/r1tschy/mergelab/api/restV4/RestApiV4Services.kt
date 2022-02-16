@@ -20,7 +20,7 @@ class RestApiV4Services(private val httpClient: HttpClient, private val token: G
     override fun getProtectedBranches(project: GitLabProjectPath, processIndicator: ProgressIndicator): List<String> {
         // TODO: use token when URL matches?
         val protectedBranches = httpClient.execute(object : JsonRequest<List<ProtectedBranch>> {
-            override val path = getProjectApiPath(project) + "/protected_branches"
+            override val location = getProjectApiPath(project) + "/protected_branches"
 
             override fun deserialize(rawResponse: String, serializer: JsonSerializer): List<ProtectedBranch> {
                 return serializer.deserializeList(rawResponse, ProtectedBranch::class)

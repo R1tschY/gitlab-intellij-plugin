@@ -32,10 +32,10 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
 
     @Throws(IOException::class)
     @RequiresBackgroundThread
-    override fun getAvatar(processIndicator: ProgressIndicator, url: String): Image? {
+    override fun getAvatar(processIndicator: ProgressIndicator, location: String): Image? {
         // TODO: use token when URL matches?
         return httpClient.execute(object : HttpRequest<Image?> {
-            override val url = url
+            override val location = location
 
             override fun readContent(response: HttpResponse): Image? {
                 return response.readBody { inputStream ->

@@ -30,8 +30,8 @@ internal class GitLabAccountsDetailsProvider(
         return ProgressManager.getInstance()
             .submitIOTask(indicator) {
                 val userDetails = api.getUserDetails(it)
-                val image = userDetails.avatarUrl?.let { url ->
-                    service<GitLabAvatarService>().loadAvatarSync(api, url, indicator)
+                val image = userDetails.avatarLocation?.let { location ->
+                    service<GitLabAvatarService>().loadAvatarSync(api, location, indicator)
                 }
                 success(userDetails, image)
             }

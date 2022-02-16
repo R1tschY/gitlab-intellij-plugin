@@ -21,8 +21,8 @@ class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: R
         return graphQl.getUserDetails(processIndicator)
     }
 
-    override fun getAvatar(processIndicator: ProgressIndicator, url: String): Image? {
-        return graphQl.getAvatar(processIndicator, url)
+    override fun getAvatar(processIndicator: ProgressIndicator, location: String): Image? {
+        return graphQl.getAvatar(processIndicator, location)
     }
 
     override fun getProtectedBranches(project: GitLabProjectPath, processIndicator: ProgressIndicator): List<String> {

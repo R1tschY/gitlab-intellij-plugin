@@ -10,6 +10,7 @@ import com.intellij.util.io.HttpRequests
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URLConnection
 
 
@@ -48,6 +49,7 @@ class IntellijHttpClient(
     private val restSerializer: JsonSerializer,
 ) : HttpClient {
     private val sessionCustomizers: MutableList<HttpRequestCustomizer> = mutableListOf()
+    private val uri = URI(url)
 
     override fun setSessionCustomizer(customizer: HttpRequestCustomizer) {
         sessionCustomizers.add(customizer)
@@ -58,7 +60,7 @@ class IntellijHttpClient(
         progressIndicator: ProgressIndicator,
         requestCustomizer: HttpRequestCustomizer
     ): T {
-        return HttpRequests.request("${request.url ?: url}${request.path}")
+        return HttpRequests.request(uri.resolve(request.location).toString())
             .userAgent("MergeLab plugin for IntelliJ IDEA")
             .tuner { connection ->
                 val httpRequest = JavaHttpRequestBuilder(connection)
@@ -83,10 +85,8 @@ class IntellijHttpClient(
     ): T {
         return execute(
             object : HttpRequest<T> {
-                override val path: String
-                    get() = request.path
-                override val url: String?
-                    get() = request.url
+                override val location: String
+                    get() = request.location
 
                 override fun readContent(response: HttpResponse): T {
                     return request.deserialize(response.readBodyToString(), restSerializer)

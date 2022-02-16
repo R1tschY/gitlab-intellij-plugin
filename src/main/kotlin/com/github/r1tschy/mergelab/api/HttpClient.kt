@@ -39,16 +39,14 @@ interface HttpResponse {
 }
 
 interface HttpRequest<T> {
-    val url: String? get() = null
-    val path: String get() = ""
+    val location: String
 
     @Throws(IOException::class)
     fun readContent(response: HttpResponse): T
 }
 
 interface JsonRequest<T : Any> {
-    val url: String? get() = null
-    val path: String get() = ""
+    val location: String
     val parameters: Map<String, String>? get() = null
 
     fun deserialize(rawResponse: String, serializer: JsonSerializer): T
