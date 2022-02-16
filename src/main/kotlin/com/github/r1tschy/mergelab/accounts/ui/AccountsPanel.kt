@@ -12,7 +12,6 @@ import com.intellij.collaboration.messages.CollaborationToolsBundle
 import com.intellij.collaboration.ui.util.JListHoveredRowMaterialiser
 import com.intellij.collaboration.util.ProgressIndicatorsProvider
 import com.intellij.icons.AllIcons
-import com.intellij.ide.DataManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.CommonShortcuts
 import com.intellij.openapi.components.service
@@ -132,14 +131,6 @@ internal fun Row.gitlabAccountsPanel(
 
     val component = AccountsPanelFactory.create(accountsModel) {
         SimpleAccountsListCellRenderer(accountsModel, detailsProvider, EmptyIcon.ICON_16)
-    }
-
-    DataManager.registerDataProvider(component) { key ->
-        if (GitLabAccountsEditor.DATA_KEY.`is`(key)) {
-            accountsModel
-        } else {
-            null
-        }
     }
 
     return cell(component).onIsModified(::isModified).onReset(::reset).onApply(::apply)

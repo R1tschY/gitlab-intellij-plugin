@@ -2,34 +2,29 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.r1tschy.mergelab.accounts.ui
 
-import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
-import com.github.r1tschy.mergelab.accounts.REQUIRED_SCOPES
-import com.github.r1tschy.mergelab.accounts.UserDetails
-import com.github.r1tschy.mergelab.accounts.buildNewTokenUrl
+import com.github.r1tschy.mergelab.accounts.*
 import com.github.r1tschy.mergelab.api.GitLabApiService
 import com.github.r1tschy.mergelab.exceptions.GitLabIllegalUrlException
+import com.github.r1tschy.mergelab.model.DEFAULT_SERVER_URL
 import com.github.r1tschy.mergelab.model.DEFAULT_URL
 import com.github.r1tschy.mergelab.model.GitLabServerUrl
 import com.intellij.collaboration.async.CompletableFutureUtil
 import com.intellij.collaboration.async.CompletableFutureUtil.handleOnEdt
 import com.intellij.collaboration.async.CompletableFutureUtil.submitIOTask
 import com.intellij.ide.BrowserUtil
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.PlatformCoreDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder.COLUMNS_SHORT
-import com.intellij.ui.dsl.builder.bindText
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.builder.text
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.layout.ComponentPredicate
 import java.awt.Component
@@ -37,44 +32,56 @@ import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
 
 /**
- * Add GitLab account action (using personal access token - PAT)
+ * Information about successful login.
  */
-class AddGitLabAccount : DumbAwareAction() {
-    override fun update(e: AnActionEvent) {
-        e.presentation.isEnabledAndVisible = e.getData(GitLabAccountsEditor.DATA_KEY) != null
-    }
+data class GitlabLoginData(val server: GitLabServerUrl, val userDetails: UserDetails, val token: GitlabAccessToken)
 
-    override fun actionPerformed(e: AnActionEvent) {
-        doAction(e.project, e.getData(GitLabAccountsEditor.DATA_KEY)!!, e.getData(CONTEXT_COMPONENT))
-    }
 
-    private fun doAction(project: Project?, accountsEditor: GitLabAccountsEditor, contextComponent: Component?) {
-        val dialog = AddGitLabAccountFromTokenDialog(project, contextComponent)
-
-        if (dialog.showAndGet()) {
-            accountsEditor.addAccount(
-                GitLabServerUrl.parse(dialog.server), GitlabAccessToken(dialog.token)
-            )
-        }
-    }
+/**
+ * Show dialog to add new account.
+ */
+fun showAddAccountDialog(project: Project?, parent: Component?): GitlabLoginData? {
+    return LoginWithTokenDialog(GitlabLoginRequest(), project, parent).showAndGetLoginData()
 }
 
 
-internal class AddGitLabAccountFromTokenDialog(
-    project: Project?, parent: Component?
-) : DialogWrapper(project, parent, false, IdeModalityType.PROJECT) {
-    var server: String = DEFAULT_URL
-    var token: String = ""
+/**
+ * Show dialog to change access token.
+ */
+fun showEditTokenDialog(account: GitLabAccount, project: Project?, parent: Component?): GitlabLoginData? {
+    val request = GitlabLoginRequest(
+        server = account.server,
+        isServerEditable = false
+    )
+    return LoginWithTokenDialog(request, project, parent).showAndGetLoginData()
+}
 
-    var userDetails: UserDetails? = null
+
+/**
+ * Request data for LoginWithTokenDialog.
+ */
+internal data class GitlabLoginRequest(
+    val title: String? = null,
+    val server: GitLabServerUrl? = DEFAULT_SERVER_URL,
+    val isServerEditable: Boolean = true,
+    val requiredLoginName: String? = null,
+)
+
+
+/**
+ * Request login information for login with PAT (Personal Access Token).
+ */
+internal class LoginWithTokenDialog(
+    private val request: GitlabLoginRequest, project: Project?, parent: Component?
+) : DialogWrapper(project, parent, false, IdeModalityType.PROJECT) {
+    private var result: GitlabLoginData? = null
+    private var tokenError: String? = null
 
     private val serverTextField = JBTextField()
     private val tokenTextField = JBTextField()
 
-    private var tokenError: String? = null
-
     init {
-        title = "Log In To GitLab Using Personal Access Token"
+        title = request.title ?: "Log In To GitLab Using Personal Access Token"
         setOKButtonText("Log In")
 
         init()
@@ -90,7 +97,8 @@ internal class AddGitLabAccountFromTokenDialog(
                 resizableRow()
                 cell(serverTextField)
                     .horizontalAlign(HorizontalAlign.FILL)
-                    .bindText(::server)
+                    .enabled(request.isServerEditable)
+                    .text(request.server?.toUrl() ?: DEFAULT_URL)
                     .validationOnInput {
                         if (it.text.isNullOrBlank()) {
                             error("Token should not be empty")
@@ -107,7 +115,6 @@ internal class AddGitLabAccountFromTokenDialog(
                 cell(tokenTextField)
                     .comment("Following scopes are required: ${REQUIRED_SCOPES.joinToString(", ")}")
                     .columns(COLUMNS_SHORT)
-                    .bindText(::token)
                     .validationOnApply { tokenError?.let { error(it) } }
 
                 button("Create New\u2026") { browseNewToken() }
@@ -158,14 +165,23 @@ internal class AddGitLabAccountFromTokenDialog(
                         startTrackingValidation()
                     }
                 } else {
-                    userDetails!!
-                    this.userDetails = userDetails
-                    this.server = serverUrl.toUrl()
-                    this.token = token.asString()
+                    this.result = GitlabLoginData(
+                        server = serverUrl,
+                        userDetails = userDetails!!,
+                        token = token
+                    )
 
                     close(OK_EXIT_CODE, true)
                 }
             }
+    }
+
+    fun showAndGetLoginData(): GitlabLoginData? {
+        return if (showAndGet()) {
+            result!!
+        } else {
+            null
+        }
     }
 }
 
