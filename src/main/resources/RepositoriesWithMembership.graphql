@@ -1,0 +1,18 @@
+query($after: String) {
+    currentUser {
+        projectMemberships(after: $after) {
+        	nodes {
+                project {
+                    id
+                    name
+                    sshUrlToRepo
+                    httpUrlToRepo
+                }
+            }
+        	pageInfo {
+                endCursor
+                hasNextPage
+            }
+        }
+    }
+}

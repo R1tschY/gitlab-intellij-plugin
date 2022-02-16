@@ -5,6 +5,7 @@ import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
 import com.github.r1tschy.mergelab.accounts.UserDetails
 import com.github.r1tschy.mergelab.api.*
 import com.github.r1tschy.mergelab.api.graphql.queries.CurrentUser
+import com.github.r1tschy.mergelab.api.graphql.queries.RepositoriesWithMembership
 import com.github.r1tschy.mergelab.exceptions.UnauthorizedAccessException
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
@@ -13,7 +14,8 @@ import java.io.IOException
 import javax.imageio.ImageIO
 
 
-class GraphQlServices(private val httpClient: HttpClient, private val token: GitlabAccessToken): GitLabUserApiService {
+class GraphQlServices(private val httpClient: HttpClient, private val token: GitlabAccessToken) : GitLabUserApiService,
+    GitlabProjectsApiService {
 
     @RequiresBackgroundThread
     override fun getUserDetails(
@@ -43,5 +45,30 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
                 }
             }
         }, processIndicator)
+    }
+
+    override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitlabRepositoryUrls> {
+        // TODO: pagination
+        return httpClient
+            .query(
+                RepositoriesWithMembership(
+                    RepositoriesWithMembership.Variables(after = null)
+                ), processIndicator, BearerAuthorization(token)
+            )
+            .check()
+            .currentUser
+            ?.projectMemberships
+            ?.nodes
+            ?.mapNotNull {
+                it?.project?.let { project ->
+                    GitlabRepositoryUrls(
+                        project.id,
+                        project.name,
+                        project.sshUrlToRepo,
+                        project.httpUrlToRepo
+                    )
+                }
+            }
+            ?: emptyList()
     }
 }

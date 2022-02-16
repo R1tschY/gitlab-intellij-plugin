@@ -3,6 +3,7 @@
 package com.github.r1tschy.mergelab.accounts
 
 import com.github.r1tschy.mergelab.model.DEFAULT_HOST
+import com.github.r1tschy.mergelab.model.DEFAULT_SERVER_URL
 import com.github.r1tschy.mergelab.model.GitLabServerUrl
 import com.intellij.collaboration.auth.ServerAccount
 import com.intellij.openapi.util.NlsSafe
@@ -24,5 +25,11 @@ class GitLabAccount(
     @Attribute("id")
     override val id: String = generateId()
 ) : ServerAccount() {
-    override fun toString(): String = "$server/$name"
+    override fun toString(): String {
+        return if (server == DEFAULT_SERVER_URL) {
+            name
+        } else {
+            "$server/$name"
+        }
+    }
 }

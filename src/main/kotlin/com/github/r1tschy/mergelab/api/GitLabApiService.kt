@@ -29,6 +29,10 @@ class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: R
     override fun getProtectedBranches(project: GitLabProjectPath, processIndicator: ProgressIndicator): List<String> {
         return restApi.getProtectedBranches(project, processIndicator)
     }
+
+    override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitlabRepositoryUrls> {
+        return graphQl.getRepositoriesWithMembership(processIndicator)
+    }
 }
 
 @Service

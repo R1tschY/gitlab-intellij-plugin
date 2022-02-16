@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nls
 class OpenInBrowserActionGroup : ActionGroup(
     "Open on GitLab",
     "Open item in browser",
-    GitLabIcons.GitLab
+    GitLabIcons.GITLAB
 ) {
 
     override fun actionPerformed(e: AnActionEvent) {

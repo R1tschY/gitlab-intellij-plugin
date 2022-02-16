@@ -26,12 +26,16 @@
         <!-- Merge Request -->
         <toolWindow id="MergeLab Merge Requests" secondary="true" icon="AllIcons.General.Modified" anchor="bottom"
                     factoryClass="com.github.r1tschy.mergelab.ui.MergeRequestsToolWindowFactory"/>
+
+        <!-- Vcs -->
+        <openapi.vcs.ui.cloneDialog.VcsCloneDialogExtension implementation="com.github.r1tschy.mergelab.repository.GitlabCloneDialogExtension" />
     </extensions>
 
     <extensions defaultExtensionNs="Git4Idea">
         <gitRepositoryHostingService implementation="com.github.r1tschy.mergelab.repository.GitLabRepositoryHostingService"/>
         <gitProtectedBranchProvider implementation="com.github.r1tschy.mergelab.repository.GitlabProtectedBranchProvider"/>
         <gitFetchHandler implementation="com.github.r1tschy.mergelab.repository.GitlabProtectedBranchPatternsFetcher" />
+        <gitRepositoryHostingService implementation="com.github.r1tschy.mergelab.repository.GitlabRepositoryHostingService" />
     </extensions>
 
     <applicationListeners>
