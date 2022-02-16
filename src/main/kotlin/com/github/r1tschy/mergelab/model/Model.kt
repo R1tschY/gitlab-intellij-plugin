@@ -5,6 +5,8 @@ package com.github.r1tschy.mergelab.model
 import com.github.r1tschy.mergelab.exceptions.GitLabIllegalUrlException
 import com.intellij.collaboration.api.ServerPath
 import com.intellij.openapi.util.NlsSafe
+import com.intellij.util.xmlb.annotations.Attribute
+import com.intellij.util.xmlb.annotations.Tag
 import java.util.regex.Pattern
 
 private const val HTTPS_DEFAULT_PORT = 443
@@ -17,10 +19,25 @@ val DEFAULT_SERVER_URL: GitLabServerUrl = GitLabServerUrl.DEFAULT
 
 const val SERVICE_DISPLAY_NAME: String = "GitLab"
 
-
+/**
+ * URL to a GitLab instance.
+ */
+@Tag("server")
 data class GitLabServerUrl(
-    val https: Boolean, val host: String, val port: Int = defaultPort(https)
+    @Attribute("https")
+    val https: Boolean,
+    @Attribute("host")
+    val host: String,
+    @Attribute("port")
+    val port: Int = defaultPort(https)
 ) : ServerPath {
+
+    /**
+     * Needed for deserialization.
+     */
+    @Suppress("unused")
+    internal constructor() : this(true, "", 0)
+
     fun toUrl(): String {
         return if (https) {
             if (port == HTTPS_DEFAULT_PORT) {
