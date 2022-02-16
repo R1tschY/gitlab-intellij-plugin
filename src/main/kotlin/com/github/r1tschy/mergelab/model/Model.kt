@@ -7,40 +7,52 @@ import com.intellij.collaboration.api.ServerPath
 import com.intellij.openapi.util.NlsSafe
 import java.util.regex.Pattern
 
+private const val HTTPS_DEFAULT_PORT = 443
+private const val HTTP_DEFAULT_PORT = 80
+
+
 const val DEFAULT_HOST: String = "gitlab.com"
 const val DEFAULT_URL: String = "https://$DEFAULT_HOST"
-val DEFAULT_SERVER_URL: GitLabServerUrl = GitLabServerUrl(true, DEFAULT_HOST, 443)
+val DEFAULT_SERVER_URL: GitLabServerUrl = GitLabServerUrl.DEFAULT
 
 const val SERVICE_DISPLAY_NAME: String = "GitLab"
 
-val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(?::(\\d+))?/?")
 
-
-data class GitLabServerUrl(val https: Boolean, val host: String, val port: Int) : ServerPath {
+data class GitLabServerUrl(
+    val https: Boolean, val host: String, val port: Int = defaultPort(https)
+) : ServerPath {
     fun toUrl(): String {
-        if (https) {
-            return "https://$host:$port"
+        return if (https) {
+            if (port == HTTPS_DEFAULT_PORT) {
+                "https://$host"
+            } else {
+                "https://$host:$port"
+            }
         } else {
-            return "http://$host:$port"
+            if (port == HTTP_DEFAULT_PORT) {
+                "http://$host"
+            } else {
+                "http://$host:$port"
+            }
         }
     }
 
     fun isDefault(): Boolean {
-        return https && host == DEFAULT_HOST && port == 443
+        return this == DEFAULT
     }
 
     fun toDisplayName(): String {
-        if (https) {
-            if (port == 443) {
-                return host
+        return if (https) {
+            if (port == HTTPS_DEFAULT_PORT) {
+                host
             } else {
-                return "$host:$port"
+                "$host:$port"
             }
         } else {
-            if (port == 80) {
-                return "http://$host"
+            if (port == HTTP_DEFAULT_PORT) {
+                "http://$host"
             } else {
-                return "http://$host:$port"
+                "http://$host:$port"
             }
         }
     }
@@ -54,6 +66,10 @@ data class GitLabServerUrl(val https: Boolean, val host: String, val port: Int) 
     }
 
     companion object {
+        val DEFAULT = GitLabServerUrl(true, DEFAULT_HOST, HTTPS_DEFAULT_PORT)
+
+        private val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(?::(\\d+))?/?")
+
         @Throws(GitLabIllegalUrlException::class)
         fun parse(url: String): GitLabServerUrl {
             val matcher = GITLAB_URL_REGEX.matcher(url)
@@ -62,11 +78,7 @@ data class GitLabServerUrl(val https: Boolean, val host: String, val port: Int) 
 
                 val port: Int
                 try {
-                    port = matcher.group(3)?.let { Integer.valueOf(it) } ?: (if (https) {
-                        443
-                    } else {
-                        80
-                    })
+                    port = matcher.group(3)?.let { Integer.valueOf(it) } ?: defaultPort(https)
                 } catch (e: NumberFormatException) {
                     throw GitLabIllegalUrlException("Not a valid GitLab URL (illegal port ${matcher.group(3)}): $url")
                 }
@@ -75,6 +87,12 @@ data class GitLabServerUrl(val https: Boolean, val host: String, val port: Int) 
             } else {
                 throw GitLabIllegalUrlException("Not a valid GitLab URL: $url")
             }
+        }
+
+        private fun defaultPort(https: Boolean): Int = if (https) {
+            HTTPS_DEFAULT_PORT
+        } else {
+            HTTP_DEFAULT_PORT
         }
     }
 }
