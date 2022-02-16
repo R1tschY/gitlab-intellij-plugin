@@ -14,10 +14,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Settings -->
         <applicationConfigurable
-                parentId="tool"
+                parentId="project.propVCSSupport.Mappings"
+                groupWeight="-500"
                 instance="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"
-                id="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"
-                displayName="GitLab"/>
+                id="com.github.r1tschy.mergelab.settings.GitLabSettingsConfigurable"/>
         <applicationService
                 serviceImplementation="com.github.r1tschy.mergelab.settings.GitLabSettings"/>
 
