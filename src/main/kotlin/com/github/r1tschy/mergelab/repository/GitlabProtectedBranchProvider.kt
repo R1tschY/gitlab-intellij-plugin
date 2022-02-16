@@ -11,7 +11,6 @@ import com.intellij.openapi.components.*
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.util.concurrency.annotations.RequiresEdt
 import git4idea.config.GitProtectedBranchProvider
 import git4idea.config.GitSharedSettings
 import git4idea.fetch.GitFetchHandler
@@ -42,14 +41,6 @@ internal class GitlabProtectedBranchCache :
     class State : BaseState() {
         var protectedBranchPatterns by map<String, List<String>>()
     }
-
-    var protectedBranchPatterns: MutableMap<String, List<String>>
-        @RequiresEdt
-        get() = state.protectedBranchPatterns
-        @RequiresEdt
-        set(value) {
-            state.protectedBranchPatterns = value
-        }
 
     fun setProtectedBranchPatternsFor(gitlabProject: GitLabProjectCoord, patterns: List<String>) {
         state.protectedBranchPatterns[gitlabProject.toUrl()] = patterns

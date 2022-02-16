@@ -15,9 +15,6 @@ const val SERVICE_DISPLAY_NAME: String = "GitLab"
 
 val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(?::(\\d+))?/?")
 
-data class MergeRequest(
-    val conflicts: Boolean, val description: String?
-)
 
 data class GitLabServerUrl(val https: Boolean, val host: String, val port: Int) : ServerPath {
     fun toUrl(): String {

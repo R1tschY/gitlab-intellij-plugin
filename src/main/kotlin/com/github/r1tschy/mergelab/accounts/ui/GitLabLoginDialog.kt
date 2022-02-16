@@ -2,8 +2,12 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.github.r1tschy.mergelab.accounts.ui
 
-import com.github.r1tschy.mergelab.accounts.*
+import com.github.r1tschy.mergelab.accounts.GitLabAccount
+import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
+import com.github.r1tschy.mergelab.accounts.REQUIRED_SCOPES
+import com.github.r1tschy.mergelab.accounts.buildNewTokenUrl
 import com.github.r1tschy.mergelab.api.GitLabApiService
+import com.github.r1tschy.mergelab.api.UserDetails
 import com.github.r1tschy.mergelab.exceptions.GitLabIllegalUrlException
 import com.github.r1tschy.mergelab.model.DEFAULT_SERVER_URL
 import com.github.r1tschy.mergelab.model.DEFAULT_URL

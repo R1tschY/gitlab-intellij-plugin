@@ -4,8 +4,8 @@ package com.github.r1tschy.mergelab.accounts.ui
 
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
 import com.github.r1tschy.mergelab.accounts.GitLabAvatarService
-import com.github.r1tschy.mergelab.accounts.UserDetails
 import com.github.r1tschy.mergelab.api.GitLabApiService
+import com.github.r1tschy.mergelab.api.UserDetails
 import com.intellij.collaboration.async.CompletableFutureUtil.submitIOTask
 import com.intellij.collaboration.auth.ui.LoadingAccountsDetailsProvider
 import com.intellij.collaboration.util.ProgressIndicatorsProvider

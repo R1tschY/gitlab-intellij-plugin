@@ -5,7 +5,6 @@ import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
 import com.github.r1tschy.mergelab.accounts.GitLabAuthService
 import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
-import com.github.r1tschy.mergelab.accounts.UserDetails
 import com.github.r1tschy.mergelab.api.graphql.GraphQlServices
 import com.github.r1tschy.mergelab.api.intellij.IntellijHttpClient
 import com.github.r1tschy.mergelab.api.restV4.JacksonJsonSerializer

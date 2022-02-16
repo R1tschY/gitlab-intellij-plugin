@@ -1,8 +1,6 @@
 package com.github.r1tschy.mergelab.api.graphql
 
-import com.github.r1tschy.mergelab.accounts.GitLabUserApiService
 import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
-import com.github.r1tschy.mergelab.accounts.UserDetails
 import com.github.r1tschy.mergelab.api.*
 import com.github.r1tschy.mergelab.api.graphql.queries.CurrentUser
 import com.github.r1tschy.mergelab.api.graphql.queries.RepositoriesWithMembership

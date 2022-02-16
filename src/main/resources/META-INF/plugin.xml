@@ -32,7 +32,6 @@
     </extensions>
 
     <extensions defaultExtensionNs="Git4Idea">
-        <gitRepositoryHostingService implementation="com.github.r1tschy.mergelab.repository.GitLabRepositoryHostingService"/>
         <gitProtectedBranchProvider implementation="com.github.r1tschy.mergelab.repository.GitlabProtectedBranchProvider"/>
         <gitFetchHandler implementation="com.github.r1tschy.mergelab.repository.GitlabProtectedBranchPatternsFetcher" />
         <gitRepositoryHostingService implementation="com.github.r1tschy.mergelab.repository.GitlabRepositoryHostingService" />
@@ -71,10 +70,6 @@
 
             <reference ref="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup"/>
         </group>
-
-        <!--suppress PluginXmlCapitalization -->
-        <action id="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccount"
-                class="com.github.r1tschy.mergelab.accounts.ui.AddGitLabAccount"/>
     </actions>
 
 </idea-plugin>
