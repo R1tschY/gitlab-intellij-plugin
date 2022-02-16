@@ -17,7 +17,7 @@ class GitLabAccountsModel : AccountsListModelBase<GitLabAccount, GitlabAccessTok
         val project = dataContext.getData(CommonDataKeys.PROJECT)
 
         showAddAccountDialog(project, parentComponent)?.let { loginData ->
-            val account = GitLabAccount(name = loginData.userDetails.name, server = loginData.server)
+            val account = GitLabAccount(name = loginData.userDetails.username, server = loginData.server)
             accountsListModel.add(account)
             newCredentials[account] = loginData.token
             notifyCredentialsChanged(account)
@@ -29,7 +29,7 @@ class GitLabAccountsModel : AccountsListModelBase<GitLabAccount, GitlabAccessTok
         val project = dataContext.getData(CommonDataKeys.PROJECT)
 
         showEditTokenDialog(account, project, parentComponent)?.let { loginData ->
-            account.name = loginData.userDetails.name
+            account.name = loginData.userDetails.username
             newCredentials[account] = loginData.token
             notifyCredentialsChanged(account)
         }

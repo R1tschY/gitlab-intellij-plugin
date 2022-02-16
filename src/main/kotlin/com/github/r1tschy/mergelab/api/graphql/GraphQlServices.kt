@@ -26,7 +26,10 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
         if (currentUser == null) {
             throw UnauthorizedAccessException()
         } else {
-            return UserDetails(currentUser.username, currentUser.name, currentUser.avatarUrl)
+            return UserDetails(
+                username = currentUser.username,
+                name = currentUser.name,
+                avatarLocation = currentUser.avatarUrl)
         }
     }
 
