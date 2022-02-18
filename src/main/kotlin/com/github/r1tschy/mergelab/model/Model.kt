@@ -133,6 +133,10 @@ data class GitLabProjectPath(val path: String) {
     fun toDisplayName(): String {
         return path
     }
+
+    fun asString(): String {
+        return path
+    }
 }
 
 enum class GitProtocol {

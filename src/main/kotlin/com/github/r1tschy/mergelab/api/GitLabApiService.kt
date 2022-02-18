@@ -9,6 +9,7 @@ import com.github.r1tschy.mergelab.api.graphql.GraphQlServices
 import com.github.r1tschy.mergelab.api.intellij.IntellijHttpClient
 import com.github.r1tschy.mergelab.api.restV4.JacksonJsonSerializer
 import com.github.r1tschy.mergelab.api.restV4.RestApiV4Services
+import com.github.r1tschy.mergelab.mergerequests.PullRequest
 import com.github.r1tschy.mergelab.model.GitLabProjectPath
 import com.github.r1tschy.mergelab.model.GitLabServerUrl
 import com.intellij.openapi.components.Service
@@ -32,6 +33,10 @@ class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: R
     override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitlabRepositoryUrls> {
         return graphQl.getRepositoriesWithMembership(processIndicator)
     }
+
+    override fun findMergeRequestsUsingSourceBranch(project: GitLabProjectPath, sourceBranch: String, processIndicator: ProgressIndicator): List<PullRequest> {
+        return graphQl.findMergeRequestsUsingSourceBranch(project, sourceBranch, processIndicator)
+    }
 }
 
 @Service
@@ -51,5 +56,13 @@ class GitLabApiService {
         val graphQl = GraphQlServices(httpClient, token)
         val restApi = RestApiV4Services(httpClient, token)
         return GitLabApiImpl(graphQl, restApi)
+    }
+
+    fun apiForRemoteUrl(remoteUrl: String): GitLabApi? {
+        return authService.findAccountByRemoteUrl(remoteUrl)?.let { apiFor(it) }
+    }
+
+    fun apiFor(serverUrl: GitLabServerUrl): GitLabApi? {
+        return authService.findAccountByServerUrl(serverUrl)?.let { apiFor(it) }
     }
 }

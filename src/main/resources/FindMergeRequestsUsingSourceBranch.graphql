@@ -1,0 +1,15 @@
+query($after: String, $projectId: ID!, $sourceBranch: String!) {
+    project(fullPath: $projectId) {
+        mergeRequests(sourceBranches: [$sourceBranch], after: $after) {
+		    nodes {
+                id
+                iid
+                title
+                state
+                sourceBranch
+                targetBranch
+                webUrl
+            }
+    	}
+    }
+}

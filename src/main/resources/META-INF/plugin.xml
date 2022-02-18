@@ -26,6 +26,10 @@
         <!-- Merge Request -->
         <toolWindow id="MergeLab Merge Requests" secondary="true" icon="AllIcons.General.Modified" anchor="bottom"
                     factoryClass="com.github.r1tschy.mergelab.ui.MergeRequestsToolWindowFactory"/>
+        <statusBarWidgetFactory
+                id="com.github.r1tschy.mergelab.mergerequests"
+                implementation="com.github.r1tschy.mergelab.mergerequests.CurrentMergeRequestsWidget$Factory"
+                order="before gitWidget"/>
 
         <!-- Vcs -->
         <openapi.vcs.ui.cloneDialog.VcsCloneDialogExtension implementation="com.github.r1tschy.mergelab.repository.GitlabCloneDialogExtension" />
@@ -47,6 +51,10 @@
                   topic="com.intellij.dvcs.repo.VcsRepositoryMappingListener"/>
         <listener class="com.github.r1tschy.mergelab.services.GitLabRemotesManager$VcsChangesListener"
                   topic="git4idea.repo.GitRepositoryChangeListener"/>
+        <listener class="com.github.r1tschy.mergelab.mergerequests.CurrentMergeRequestsService$VcsChangesListener"
+                  topic="com.intellij.openapi.vcs.BranchChangeListener"/>
+        <listener class="com.github.r1tschy.mergelab.mergerequests.CurrentMergeRequestsWidget$ChangesListener"
+                  topic="com.github.r1tschy.mergelab.mergerequests.CurrentMergeRequestsChangesListener" />
     </projectListeners>
 
     <!-- Actions -->
