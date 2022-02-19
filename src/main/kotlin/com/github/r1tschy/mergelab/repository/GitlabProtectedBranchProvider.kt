@@ -24,7 +24,9 @@ class GitlabProtectedBranchProvider : GitProtectedBranchProvider {
     override fun doGetProtectedBranchPatterns(project: Project): List<String> {
         val remotesManager: GitLabRemotesManager = project.service()
         val cache: GitlabProtectedBranchCache = project.service()
-        return remotesManager.gitLabProjects.flatMap { cache.getProtectedBranchPatternsFor(it) ?: emptyList() }
+        return remotesManager.remotes
+            .flatMap { cache.getProtectedBranchPatternsFor(it.projectCoord) ?: emptyList() }
+            .distinct()
     }
 }
 

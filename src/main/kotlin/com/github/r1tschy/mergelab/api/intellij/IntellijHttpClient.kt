@@ -5,6 +5,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.github.r1tschy.mergelab.api.*
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.util.SlowOperations.assertSlowOperationsAreAllowed
 import com.intellij.util.ThrowableConvertor
 import com.intellij.util.io.HttpRequests
 import java.io.IOException
@@ -60,6 +61,7 @@ class IntellijHttpClient(
         progressIndicator: ProgressIndicator,
         requestCustomizer: HttpRequestCustomizer
     ): T {
+        assertSlowOperationsAreAllowed()
         return HttpRequests.request(uri.resolve(request.location).toString())
             .userAgent("MergeLab plugin for IntelliJ IDEA")
             .tuner { connection ->
@@ -83,6 +85,7 @@ class IntellijHttpClient(
         progressIndicator: ProgressIndicator,
         requestCustomizer: HttpRequestCustomizer
     ): T {
+        assertSlowOperationsAreAllowed()
         return execute(
             object : HttpRequest<T> {
                 override val location: String
@@ -102,6 +105,7 @@ class IntellijHttpClient(
         progressIndicator: ProgressIndicator,
         requestCustomizer: HttpRequestCustomizer
     ): GraphQLClientResponse<T> {
+        assertSlowOperationsAreAllowed()
         val rawResult: String = HttpRequests.post("$url/api/graphql", JSON_MIME_TYPE)
             .userAgent("MergeLab plugin for IntelliJ IDEA")
             .tuner { connection ->

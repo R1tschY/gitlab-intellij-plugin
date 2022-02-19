@@ -5,14 +5,13 @@ package com.github.r1tschy.mergelab.services
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
 import com.github.r1tschy.mergelab.accounts.GitLabAccountsManager
 import com.github.r1tschy.mergelab.accounts.GitLabAuthService
-import com.github.r1tschy.mergelab.model.GitLabProjectCoord
 import com.github.r1tschy.mergelab.model.GitLabRemote
 import com.github.r1tschy.mergelab.model.GitLabService
-import com.github.r1tschy.mergelab.utils.Observable
 import com.github.r1tschy.mergelab.utils.computeInEdt
 import com.intellij.collaboration.auth.AccountsListener
 import com.intellij.dvcs.repo.VcsRepositoryMappingListener
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -26,40 +25,57 @@ import git4idea.repo.GitRepositoryChangeListener
 @Service
 class GitLabRemotesManager(private val project: Project) {
 
+    @Volatile
+    private var _remotes: List<GitLabRemote> = emptyList()
+
+    @Volatile
+    private var updateLock = false
+
     init {
-        service<GitLabAccountsManager>().addListener(object: AccountsListener<GitLabAccount> {
+        service<GitLabAccountsManager>().addListener(object : AccountsListener<GitLabAccount> {
             override fun onAccountListChanged(old: Collection<GitLabAccount>, new: Collection<GitLabAccount>) {
                 updateRepositories()
             }
         })
     }
 
-    var remotes by Observable(emptyList<GitLabRemote>()) { newValue ->
-        project.messageBus.syncPublisher(REMOTES_CHANGES_TOPIC).onRemotesChanged(newValue)
-    }
+    var remotes: List<GitLabRemote>
+        get() = _remotes
+        private set(value) {
+            _remotes = value
+            project.messageBus.syncPublisher(GitlabRemoteChangesListener.TOPIC).onRemotesChanged(value)
+        }
 
     fun getRemotesFor(gitRepository: GitRepository): List<GitLabRemote> {
         return remotes.filter { it.repo == gitRepository }
     }
 
-    val gitLabProjects: List<GitLabProjectCoord> get() = remotes.map { it.projectCoord }
+    private fun updateRepositories() {
+        if (updateLock)
+            return
 
-    fun updateRepositories() {
-        object: Task.Backgroundable(project, "Detecting GitLab remotes") {
-            override fun run(indicator: ProgressIndicator) {
-                LOG.info("Detecting GitLab remotes")
-                remotes = computeInEdt { service<GitLabAuthService>().getAccounts() }
-                    .flatMap { GitLabService.getRemotes(it.server, project) }
-                LOG.info("Refreshed GitLab remotes: $remotes")
-            }
-        }.queue()
+        updateLock = true
+        invokeLater {
+            updateLock = false
+
+            object : Task.Backgroundable(project, "Detecting GitLab remotes") {
+                override fun run(indicator: ProgressIndicator) {
+                    LOG.info("Detecting GitLab remotes")
+                    indicator.checkCanceled()
+                    val remotes = computeInEdt { service<GitLabAuthService>().getAccounts() }
+                        .flatMap { GitLabService.getRemotes(it.server, project) }
+                    this@GitLabRemotesManager.remotes = remotes
+                    LOG.info("Refreshed GitLab remotes: $remotes")
+                }
+            }.queue()
+        }
     }
 
-    fun subscribeRemotesChanges(disposable: Disposable, listener: RemotesChangesListener) {
-        project.messageBus.connect(disposable).subscribe(REMOTES_CHANGES_TOPIC, listener)
+    fun subscribeRemotesChanges(disposable: Disposable, listener: GitlabRemoteChangesListener) {
+        project.messageBus.connect(disposable).subscribe(GitlabRemoteChangesListener.TOPIC, listener)
     }
 
-    class VcsChangesListener(private val project: Project) : VcsRepositoryMappingListener, GitRepositoryChangeListener {
+    internal class VcsChangesListener(private val project: Project) : VcsRepositoryMappingListener, GitRepositoryChangeListener {
         override fun mappingChanged() {
             updateRepositories(project)
         }
@@ -69,20 +85,21 @@ class GitLabRemotesManager(private val project: Project) {
         }
     }
 
-    interface RemotesChangesListener {
-        fun onRemotesChanged(remotes: List<GitLabRemote>)
-    }
-
     companion object {
         private val LOG = logger<GitLabRemotesManager>()
 
-        val REMOTES_CHANGES_TOPIC =
-            Topic.create("GitLab Repository Changes", RemotesChangesListener::class.java)
-
-        fun updateRepositories(project: Project) {
+        private fun updateRepositories(project: Project) {
             if (!project.isDisposed) {
                 project.service<GitLabRemotesManager>().updateRepositories()
             }
         }
+    }
+}
+
+interface GitlabRemoteChangesListener {
+    fun onRemotesChanged(remotes: List<GitLabRemote>)
+
+    companion object {
+        val TOPIC = Topic.create("GitLab Remote Changes", GitlabRemoteChangesListener::class.java)
     }
 }

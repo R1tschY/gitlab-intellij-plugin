@@ -3,6 +3,7 @@ package com.github.r1tschy.mergelab.mergerequests
 import com.github.r1tschy.mergelab.api.GitLabApiService
 import com.github.r1tschy.mergelab.model.GitLabRemote
 import com.github.r1tschy.mergelab.services.GitLabRemotesManager
+import com.github.r1tschy.mergelab.services.GitlabRemoteChangesListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -22,7 +23,7 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
 
     init {
         project.service<GitLabRemotesManager>()
-            .subscribeRemotesChanges(this, object : GitLabRemotesManager.RemotesChangesListener {
+            .subscribeRemotesChanges(this, object : GitlabRemoteChangesListener {
                 override fun onRemotesChanged(remotes: List<GitLabRemote>) {
                     updateCurrentMergeRequests()
                 }
