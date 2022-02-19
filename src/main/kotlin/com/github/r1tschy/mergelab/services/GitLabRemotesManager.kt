@@ -7,11 +7,11 @@ import com.github.r1tschy.mergelab.accounts.GitLabAccountsManager
 import com.github.r1tschy.mergelab.accounts.GitLabAuthService
 import com.github.r1tschy.mergelab.model.GitLabRemote
 import com.github.r1tschy.mergelab.model.GitLabService
+import com.github.r1tschy.mergelab.utils.Debouncer
 import com.github.r1tschy.mergelab.utils.computeInEdt
 import com.intellij.collaboration.auth.AccountsListener
 import com.intellij.dvcs.repo.VcsRepositoryMappingListener
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -28,8 +28,7 @@ class GitLabRemotesManager(private val project: Project) {
     @Volatile
     private var _remotes: List<GitLabRemote> = emptyList()
 
-    @Volatile
-    private var updateLock = false
+    private val updateDebouncer = Debouncer()
 
     init {
         service<GitLabAccountsManager>().addListener(object : AccountsListener<GitLabAccount> {
@@ -42,8 +41,11 @@ class GitLabRemotesManager(private val project: Project) {
     var remotes: List<GitLabRemote>
         get() = _remotes
         private set(value) {
+            val oldValue = _remotes
             _remotes = value
-            project.messageBus.syncPublisher(GitlabRemoteChangesListener.TOPIC).onRemotesChanged(value)
+            if (!project.isDisposed && oldValue != value) {
+                project.messageBus.syncPublisher(GitlabRemoteChangesListener.TOPIC).onRemotesChanged(value)
+            }
         }
 
     fun getRemotesFor(gitRepository: GitRepository): List<GitLabRemote> {
@@ -51,13 +53,7 @@ class GitLabRemotesManager(private val project: Project) {
     }
 
     private fun updateRepositories() {
-        if (updateLock)
-            return
-
-        updateLock = true
-        invokeLater {
-            updateLock = false
-
+        updateDebouncer.invoke {
             object : Task.Backgroundable(project, "Detecting GitLab remotes") {
                 override fun run(indicator: ProgressIndicator) {
                     LOG.info("Detecting GitLab remotes")
