@@ -25,6 +25,8 @@ class GitLabSettings : AccountsRepository<GitLabAccount>, PersistentStateCompone
             state.accounts = value.toList()
         }
 
+    fun hasAccounts(): Boolean = state.accounts.isNotEmpty()
+
     override fun getState(): GitLabSettingsState = state
 
     override fun loadState(state: GitLabSettingsState) {
@@ -34,5 +36,6 @@ class GitLabSettings : AccountsRepository<GitLabAccount>, PersistentStateCompone
 
 class GitLabSettingsState {
     @Tag("account")
+    @Volatile
     var accounts = emptyList<GitLabAccount>()
 }

@@ -1,6 +1,6 @@
 package com.github.r1tschy.mergelab.mergerequests
 
-data class PullRequestId(private val id: String) {
+data class MergeRequestId(private val id: String) {
     fun asString(): String = id
 }
 
@@ -12,9 +12,10 @@ enum class MergeRequestState {
     OTHER
 }
 
-data class PullRequest(
+
+data class MergeRequest(
     val id: String,
-    val iid: PullRequestId,
+    val iid: MergeRequestId,
     val title: String,
     val sourceBranch: String,
     val targetBranch: String,

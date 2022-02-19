@@ -1,8 +1,8 @@
 package com.github.r1tschy.mergelab.mergerequests
 
-import com.github.r1tschy.mergelab.utils.invokeLaterInEdt
 import com.intellij.dvcs.DvcsUtil
 import com.intellij.ide.BrowserUtil
+import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -22,15 +22,15 @@ import java.awt.event.MouseEvent
 
 class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project), StatusBarWidget.TextPresentation {
 
-    private var mergeRequest: PullRequest? = null
+    private var mergeRequest: MergeRequest? = null
     private val mrService = project.service<CurrentMergeRequestsService>()
 
     init {
         update()
 
         mrService.subscribeChanges(this, object : CurrentMergeRequestsChangesListener {
-            override fun onCurrentMergeRequestsChanged(remotes: List<PullRequest>) {
-                invokeLaterInEdt { update() }
+            override fun onCurrentMergeRequestsChanged(remotes: List<MergeRequestWorkingCopy>) {
+                invokeLater { update() }
             }
         })
     }
@@ -63,12 +63,21 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     }
 
     private fun update() {
-        // TODO: val guessRepo = guessCurrentRepository()
+        val guessRepo = guessCurrentRepository()
 
-        val mergeRequests = mrService.getCurrentMergeRequests()
+        val allMergeRequests = mrService.getCurrentMergeRequests()
+        val mergeRequests = guessRepo
+            ?.let { repo -> allMergeRequests.filter { repo.root == it.repoRoot } }
+            ?: allMergeRequests
 
-        mergeRequest = if (mergeRequests.isNotEmpty()) {
-            mergeRequests[0] // TODO: make a better guess
+        val openMergeRequests = mergeRequests.filter { it.mr.state == MergeRequestState.OPEN }
+
+        mergeRequest = if (openMergeRequests.isNotEmpty()) {
+            // TODO: use newest
+            openMergeRequests[0].mr
+        } else if (mergeRequests.isNotEmpty()) {
+            // TODO: use newest
+            mergeRequests[0].mr
         } else {
             null
         }
@@ -109,7 +118,7 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     }
 
     class ChangesListener(private val project: Project) : CurrentMergeRequestsChangesListener {
-        override fun onCurrentMergeRequestsChanged(remotes: List<PullRequest>) {
+        override fun onCurrentMergeRequestsChanged(remotes: List<MergeRequestWorkingCopy>) {
             project.service<StatusBarWidgetsManager>().updateWidget(Factory::class.java)
         }
     }

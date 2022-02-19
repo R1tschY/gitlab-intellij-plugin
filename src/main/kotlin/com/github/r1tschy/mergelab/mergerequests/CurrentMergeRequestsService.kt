@@ -12,14 +12,20 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.BranchChangeListener
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
-import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.messages.Topic
+import git4idea.repo.GitRepository
+import org.jetbrains.annotations.CalledInAny
+import java.util.stream.Collectors.toList
+
+data class MergeRequestWorkingCopy(val repoRoot: VirtualFile, val mr: MergeRequest)
 
 @Service
 class CurrentMergeRequestsService(private val project: Project) : Disposable {
 
-    private var currentMergeRequests: List<PullRequest> = listOf()
+    @Volatile
+    private var currentMergeRequests: List<MergeRequestWorkingCopy> = listOf()
 
     init {
         project.service<GitLabRemotesManager>()
@@ -30,17 +36,25 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
             })
     }
 
-    @RequiresEdt
-    fun getCurrentMergeRequests(): List<PullRequest> = currentMergeRequests
+    @CalledInAny
+    fun getCurrentMergeRequests(): List<MergeRequestWorkingCopy> {
+        return currentMergeRequests
+    }
+
+    @CalledInAny
+    fun getCurrentMergeRequests(repo: GitRepository): List<MergeRequest> {
+        val repoRoot = repo.root
+        return currentMergeRequests.stream().filter { it.repoRoot == repoRoot }.map { it.mr }.collect(toList())
+    }
 
     @RequiresBackgroundThread
-    private fun fetchCurrentMergeRequests(progressIndicator: ProgressIndicator): List<PullRequest> {
+    private fun fetchCurrentMergeRequests(progressIndicator: ProgressIndicator): List<MergeRequestWorkingCopy> {
         LOG.info("Detecting merge requests for current branches")
-        val remotesManager: GitLabRemotesManager = project.service() // TODO: requires Edt
+        val remotesManager: GitLabRemotesManager = project.service()
         val apiService: GitLabApiService = service()
 
-        val result: MutableList<PullRequest> = mutableListOf()
-        for (remote in remotesManager.remotes.toList()) {
+        val result: MutableList<MergeRequestWorkingCopy> = mutableListOf()
+        for (remote in remotesManager.remotes) {
             val currentBranch = remote.repo.currentBranch
             if (currentBranch != null) {
                 val branchTrackInfo = remote.repo.getBranchTrackInfo(currentBranch.name)
@@ -58,7 +72,9 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
 
                     if (mergeRequests != null && mergeRequests.isNotEmpty()) {
                         LOG.info("Found for merge requests for ${currentBranch.name} on ${remote.projectCoord.server}: $mergeRequests")
-                        result.addAll(mergeRequests)
+                        for (mr in mergeRequests) {
+                            result.add(MergeRequestWorkingCopy(remote.repo.root, mr))
+                        }
                     }
                 }
             }
@@ -101,7 +117,7 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
 }
 
 interface CurrentMergeRequestsChangesListener {
-    fun onCurrentMergeRequestsChanged(remotes: List<PullRequest>)
+    fun onCurrentMergeRequestsChanged(remotes: List<MergeRequestWorkingCopy>)
 
     companion object {
         val TOPIC = Topic.create("Current Merge Requests Changes", CurrentMergeRequestsChangesListener::class.java)

@@ -6,9 +6,9 @@ import com.github.r1tschy.mergelab.api.graphql.queries.CurrentUser
 import com.github.r1tschy.mergelab.api.graphql.queries.FindMergeRequestsUsingSourceBranch
 import com.github.r1tschy.mergelab.api.graphql.queries.RepositoriesWithMembership
 import com.github.r1tschy.mergelab.exceptions.UnauthorizedAccessException
+import com.github.r1tschy.mergelab.mergerequests.MergeRequest
+import com.github.r1tschy.mergelab.mergerequests.MergeRequestId
 import com.github.r1tschy.mergelab.mergerequests.MergeRequestState
-import com.github.r1tschy.mergelab.mergerequests.PullRequest
-import com.github.r1tschy.mergelab.mergerequests.PullRequestId
 import com.github.r1tschy.mergelab.model.GitLabProjectPath
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
@@ -84,7 +84,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
         project: GitLabProjectPath,
         sourceBranch: String,
         processIndicator: ProgressIndicator
-    ): List<PullRequest> {
+    ): List<MergeRequest> {
         // TODO: pagination
         return httpClient
             .query(
@@ -103,8 +103,8 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             ?.nodes
             ?.mapNotNull {
                 it?.let { mr ->
-                    PullRequest(
-                        id = mr.id, iid = PullRequestId(mr.iid), title = mr.title, sourceBranch = mr.sourceBranch,
+                    MergeRequest(
+                        id = mr.id, iid = MergeRequestId(mr.iid), title = mr.title, sourceBranch = mr.sourceBranch,
                         targetBranch = mr.targetBranch, state = mapState(mr.state), webUrl = mr.webUrl
                     )
                 }

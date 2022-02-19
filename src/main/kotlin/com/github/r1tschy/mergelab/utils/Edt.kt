@@ -10,7 +10,3 @@ inline fun <T> computeInEdt(crossinline fn: () -> T): T {
     @Suppress("UNCHECKED_CAST")
     return result as T
 }
-
-inline fun <T> invokeLaterInEdt(crossinline fn: () -> T) {
-    ApplicationManager.getApplication().invokeLater { fn() }
-}
