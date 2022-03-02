@@ -1,0 +1,10 @@
+query ($q: String, $membership: Boolean, $sort: String = "stars_desc", $after: String, $first: Int) {
+    projects(search: $q, membership: $membership, sort: $sort, after: $after, first: $first) {
+        nodes {
+            fullPath
+            name
+            description
+            starCount
+        }
+    }
+}

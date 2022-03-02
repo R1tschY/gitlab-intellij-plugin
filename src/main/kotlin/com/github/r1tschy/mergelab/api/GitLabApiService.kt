@@ -19,7 +19,7 @@ import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.CalledInAny
 import java.awt.Image
 
-class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: RestApiV4Services): GitLabApi {
+class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: RestApiV4Services) : GitLabApi {
     override fun getUserDetails(processIndicator: ProgressIndicator): UserDetails {
         return graphQl.getUserDetails(processIndicator)
     }
@@ -36,7 +36,20 @@ class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: R
         return graphQl.getRepositoriesWithMembership(processIndicator)
     }
 
-    override fun findMergeRequestsUsingSourceBranch(project: GitLabProjectPath, sourceBranch: String, processIndicator: ProgressIndicator): List<MergeRequest> {
+    override fun search(
+        query: String?,
+        membership: Boolean,
+        sort: String,
+        processIndicator: ProgressIndicator
+    ): List<GitlabRepositoryUrls> {
+        return graphQl.search(query, membership, sort, processIndicator)
+    }
+
+    override fun findMergeRequestsUsingSourceBranch(
+        project: GitLabProjectPath,
+        sourceBranch: String,
+        processIndicator: ProgressIndicator
+    ): List<MergeRequest> {
         return graphQl.findMergeRequestsUsingSourceBranch(project, sourceBranch, processIndicator)
     }
 }

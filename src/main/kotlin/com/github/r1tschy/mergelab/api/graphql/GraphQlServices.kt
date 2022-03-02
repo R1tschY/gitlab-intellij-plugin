@@ -5,6 +5,7 @@ import com.github.r1tschy.mergelab.api.*
 import com.github.r1tschy.mergelab.api.graphql.queries.CurrentUser
 import com.github.r1tschy.mergelab.api.graphql.queries.FindMergeRequestsUsingSourceBranch
 import com.github.r1tschy.mergelab.api.graphql.queries.RepositoriesWithMembership
+import com.github.r1tschy.mergelab.api.graphql.queries.SearchProjects
 import com.github.r1tschy.mergelab.exceptions.UnauthorizedAccessException
 import com.github.r1tschy.mergelab.mergerequests.MergeRequest
 import com.github.r1tschy.mergelab.mergerequests.MergeRequestId
@@ -80,6 +81,30 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             ?: emptyList()
     }
 
+    override fun search(
+        query: String?,
+        membership: Boolean,
+        sort: String,
+        processIndicator: ProgressIndicator
+    ): List<GitlabRepositoryUrls> {
+        return httpClient
+            .query(
+                SearchProjects(
+                    SearchProjects.Variables(q = query, membership = membership, sort = sort, after = null, first = 20)
+                ),
+                processIndicator, BearerAuthorization(token)
+            )
+            .check()
+            .projects
+            ?.nodes
+            ?.mapNotNull {
+                it?.let { project ->
+                    GitlabRepositoryUrls(id = project.fullPath, name = project.name, sshUrl = null, httpsUrl = null)
+                }
+            }
+            ?: emptyList()
+    }
+
     override fun findMergeRequestsUsingSourceBranch(
         project: GitLabProjectPath,
         sourceBranch: String,
@@ -90,9 +115,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             .query(
                 FindMergeRequestsUsingSourceBranch(
                     FindMergeRequestsUsingSourceBranch.Variables(
-                        projectId = project.asString(),
-                        sourceBranch = sourceBranch,
-                        after = null
+                        projectId = project.asString(), sourceBranch = sourceBranch, after = null
                     )
                 ),
                 processIndicator, BearerAuthorization(token)

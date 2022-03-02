@@ -6,4 +6,5 @@ data class GitlabRepositoryUrls(val id: String, val name: String, val sshUrl: St
 
 interface GitlabProjectsApiService {
     fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitlabRepositoryUrls>
+    fun search(query: String?, membership: Boolean, sort: String = "stars_desc", processIndicator: ProgressIndicator): List<GitlabRepositoryUrls>
 }

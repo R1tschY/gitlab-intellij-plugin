@@ -1,16 +1,24 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.github.r1tschy.mergelab.repository
 
 import com.github.r1tschy.mergelab.GitLabIcons
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
 import com.github.r1tschy.mergelab.accounts.GitLabAccountsManager
 import com.github.r1tschy.mergelab.accounts.GitLabAuthService
-import com.github.r1tschy.mergelab.model.GitLabProjectPath
+import com.github.r1tschy.mergelab.api.GitLabApiService
+import com.github.r1tschy.mergelab.api.GitlabRepositoryUrls
 import com.github.r1tschy.mergelab.model.SERVICE_DISPLAY_NAME
+import com.github.r1tschy.mergelab.utils.Model
+import com.github.r1tschy.mergelab.utils.toPredicate
 import com.intellij.collaboration.auth.AccountsListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.ValidationInfo
@@ -21,17 +29,19 @@ import com.intellij.openapi.vcs.ui.cloneDialog.VcsCloneDialogExtensionStatusLine
 import com.intellij.openapi.vcs.ui.cloneDialog.VcsCloneDialogExtensionStatusLine.Companion.greyText
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui.ScrollPaneFactory
+import com.intellij.ui.SearchTextField
+import com.intellij.ui.SingleSelectionModel
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.panels.Wrapper
-import com.intellij.ui.dsl.builder.bindText
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.dsl.gridLayout.VerticalAlign
-import java.awt.Image
+import com.intellij.ui.layout.listCellRenderer
 import javax.swing.*
+import javax.swing.event.ListDataEvent
+import javax.swing.event.ListDataEvent.CONTENTS_CHANGED
 import javax.swing.event.ListDataListener
 import kotlin.reflect.KClass
-import kotlin.reflect.KMutableProperty0
 
 class GitlabCloneDialogExtension : VcsCloneDialogExtension {
     @Suppress("OverridingDeprecatedMember")
@@ -58,31 +68,41 @@ class GitlabCloneDialogExtension : VcsCloneDialogExtension {
 }
 
 
-internal data class GitlabProjectEntry(val id: String, val project: GitLabProjectPath, val image: Image?)
-
-
 internal class GitlabCloneDialogExtensionComponent(
     private val project: Project,
     private val modalityState: ModalityState
 ) : VcsCloneDialogExtensionComponent() {
 
-    private val projectsModel: ListModel<GitlabProjectEntry>
-    private val accountsModel: AccountsListModel = AccountsListModel()
-    internal var selectedAccount: GitLabAccount? = null
+    private val projectsModel: SimpleListModel<GitlabRepositoryUrls> = SimpleListModel()
+    private val accountsModel: SortedAccountsListModel =
+        SortedAccountsListModel(service<GitLabAuthService>().getAccounts())
+
+    private val searchTextField = SearchTextField(false)
+
     internal var search: String = ""
+
+    private val selectedAccountProperty = Model<GitLabAccount?>(null)
+    internal var selectedAccount by selectedAccountProperty
 
     private val wrapper = Wrapper()
     private val projectsPanel: DialogPanel
-    private val projectsList: JBList<GitlabProjectEntry>
+    private val projectsList: JBList<GitlabRepositoryUrls> = JBList(projectsModel).apply {
+        cellRenderer = listCellRenderer { value, _, _ -> text = value.name }
+        selectionModel = SingleSelectionModel()
+    }
 
     init {
-        projectsModel = SimpleListModel()
+        selectedAccountProperty.addListener {
 
-        projectsList = JBList(projectsModel)
+        }
+
+        val accountSelected = selectedAccountProperty.toPredicate { it != null }
 
         projectsPanel = panel {
-            row("GitLab server") {
-                comboBox(KComboboxProxyModel(GitLabAccount::class, accountsModel, ::selectedAccount), null)
+            row("GitLab Server") {
+                comboBox(
+                    KComboboxProxyModel(GitLabAccount::class, accountsModel, selectedAccountProperty),
+                    listCellRenderer { value, _, _ -> text = value.toString() })
                     .horizontalAlign(HorizontalAlign.FILL)
 
                 cell(JSeparator(JSeparator.VERTICAL))
@@ -92,19 +112,26 @@ internal class GitlabCloneDialogExtensionComponent(
             }
 
             row("Search:") {
-                textField()
-                    .bindText(::search)
+                cell(searchTextField)
+                    .enabledIf(accountSelected)
                     .horizontalAlign(HorizontalAlign.FILL)
+
+                button("Go") {
+                    doSearch()
+                }
             }
 
             row {
                 cell(ScrollPaneFactory.createScrollPane(projectsList))
+                    .enabledIf(accountSelected)
                     .horizontalAlign(HorizontalAlign.FILL)
                     .verticalAlign(VerticalAlign.FILL)
+                    .resizableColumn()
             }
 
             row("Directory:") {
                 textFieldWithBrowseButton()
+                    .enabledIf(accountSelected)
                     .horizontalAlign(HorizontalAlign.FILL)
                     .component
                     .addBrowseFolderListener(
@@ -120,6 +147,31 @@ internal class GitlabCloneDialogExtensionComponent(
         }
 
         wrapper.setContent(projectsPanel)
+    }
+
+    private fun doSearch() {
+        projectsList.setPaintBusy(true)
+
+        val query = searchTextField.text
+
+        object : Task.Backgroundable(project, "Search GitLab projects") {
+            @Volatile
+            private var projects: List<GitlabRepositoryUrls> = listOf()
+
+            override fun run(indicator: ProgressIndicator) {
+                projects = service<GitLabApiService>()
+                    .apiFor(selectedAccount!!)!!
+                    .search(query = query, membership = true, processIndicator = indicator)
+            }
+
+            override fun onSuccess() {
+                projectsModel.reset(projects)
+            }
+
+            override fun onFinished() {
+                projectsList.setPaintBusy(false)
+            }
+        }.queue()
     }
 
     override fun doClone(checkoutListener: CheckoutProvider.Listener) {
@@ -143,6 +195,10 @@ internal class GitlabCloneDialogExtensionComponent(
     override fun getPreferredFocusedComponent(): JComponent? {
         // TODO
         return null
+    }
+
+    companion object {
+        val LOG = thisLogger()
     }
 }
 
@@ -171,6 +227,11 @@ internal class SimpleListModel<T> : AbstractListModel<T>() {
         }
     }
 
+    fun reset(elements: Collection<T>) {
+        clear()
+        addAll(elements)
+    }
+
     fun clear() {
         if (data.isNotEmpty()) {
             val oldSize = data.size
@@ -192,17 +253,22 @@ internal class SimpleListModel<T> : AbstractListModel<T>() {
 internal class KComboboxProxyModel<T : Any?>(
     private val cls: KClass<*>,
     private val model: ListModel<T>,
-    private var selected: KMutableProperty0<T>
-) :
-    ComboBoxModel<T>, AbstractListModel<T>() {
+    private var selected: Model<T>
+) : ComboBoxModel<T>, AbstractListModel<T>() {
 
-    override fun getSize(): Int = model.size
+    override fun getSize(): Int {
+        return model.size
+    }
 
-    override fun getElementAt(index: Int): T = model.getElementAt(index)
+    override fun getElementAt(index: Int): T {
+        return model.getElementAt(index)
+    }
 
     override fun addListDataListener(l: ListDataListener?) {
+        l!!
         model.addListDataListener(l)
         super.addListDataListener(l)
+        l.contentsChanged(ListDataEvent(this, CONTENTS_CHANGED, -1, -1))
     }
 
     override fun removeListDataListener(l: ListDataListener?) {
@@ -258,12 +324,13 @@ internal class ComboboxProxyModel<T>(private val model: ListModel<T>, private va
 }
 
 
-internal class AccountsListModel(private val authService: GitLabAuthService = service()) :
-    AbstractListModel<GitLabAccount>(), Disposable {
+internal class SortedAccountsListModel(accounts: Collection<GitLabAccount>) : AbstractListModel<GitLabAccount>(),
+    Disposable {
 
     private val data = mutableListOf<GitLabAccount>()
 
     init {
+        update(accounts)
         service<GitLabAccountsManager>().addListener(this, object : AccountsListener<GitLabAccount> {
             override fun onAccountListChanged(old: Collection<GitLabAccount>, new: Collection<GitLabAccount>) {
                 update(new)
