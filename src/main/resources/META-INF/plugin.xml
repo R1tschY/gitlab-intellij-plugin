@@ -41,11 +41,6 @@
         <gitRepositoryHostingService implementation="com.github.r1tschy.mergelab.repository.GitlabRepositoryHostingService" />
     </extensions>
 
-    <applicationListeners>
-        <listener class="com.github.r1tschy.mergelab.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
-
     <projectListeners>
         <listener class="com.github.r1tschy.mergelab.services.GitLabRemotesManager$VcsChangesListener"
                   topic="com.intellij.dvcs.repo.VcsRepositoryMappingListener"/>
