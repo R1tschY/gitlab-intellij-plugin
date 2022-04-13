@@ -1,12 +1,12 @@
 package com.github.r1tschy.mergelab.model
 
-import git4idea.repo.GitRemote
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
-import java.net.URL
-import kotlin.test.assertNull
+//import git4idea.repo.GitRemote
+//import org.junit.jupiter.api.Test
+//import kotlin.test.assertEquals
+//import org.junit.jupiter.params.ParameterizedTest
+//import org.junit.jupiter.params.provider.ValueSource
+//import java.net.URL
+//import kotlin.test.assertNull
 
 class GitLabServiceTest {
 //
