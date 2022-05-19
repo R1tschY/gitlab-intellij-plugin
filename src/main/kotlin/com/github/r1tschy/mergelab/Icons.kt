@@ -11,4 +11,6 @@ private fun icon(name: String): Icon {
 
 object GitLabIcons {
     val GITLAB = icon("gitlab_logo")
+    val MERGE_REQUEST = icon("merge-request")
+    val MERGE_REQUEST_CLOSE = icon("merge-request-close")
 }
