@@ -3,7 +3,12 @@
 package com.github.r1tschy.mergelab
 
 import com.intellij.openapi.util.IconLoader
+import javax.swing.Icon
+
+private fun icon(name: String): Icon {
+    return IconLoader.getIcon("/icons/$name.svg", GitLabIcons::class.java)
+}
 
 object GitLabIcons {
-    val GITLAB = IconLoader.getIcon("/icons/gitlab.svg", GitLabIcons::class.java)
+    val GITLAB = icon("gitlab_logo")
 }
