@@ -85,7 +85,7 @@ data class GitLabServerUrl(
     companion object {
         val DEFAULT = GitLabServerUrl(true, DEFAULT_HOST, HTTPS_DEFAULT_PORT)
 
-        private val GITLAB_URL_REGEX: Pattern = Pattern.compile("(https?)://([a-zA-Z0-9-.]+)(?::(\\d+))?/?")
+        private val GITLAB_URL_REGEX: Pattern = Pattern.compile("""(https?)://([a-zA-Z\d-.]+)(?::(\d+))?/?""")
 
         @Throws(GitLabIllegalUrlException::class)
         fun parse(url: String): GitLabServerUrl {
