@@ -1,4 +1,4 @@
-# MergeLab
+# GitLab4Idea
 
 ![Build](https://github.com/R1tschY/mergelab/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
@@ -18,11 +18,12 @@
 Provides integration with [GitLab](https://gitlab.com/):
  * Open files and commits in Browser
  * Clone repositories
+ * Open merge request for current branch
  * Soon: Create, view, comment and review merge requests.
  * Soon: View CI/CD builds.
  * Maybe soon: Create snippets
 
-To add account, open **Settings / Preferences** and go to **Version Control | GitLab**
+To add account, open <kbd>Settings / Preferences</kbd> and go to <kbd>Version Control</kbd> > <kbd>GitLab</kbd>
 
 Requires Git plugin.
 <!-- Plugin description end -->
