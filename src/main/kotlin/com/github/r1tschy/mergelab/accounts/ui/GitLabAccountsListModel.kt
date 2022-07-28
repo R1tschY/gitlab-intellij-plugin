@@ -4,13 +4,14 @@ package com.github.r1tschy.mergelab.accounts.ui
 
 import com.github.r1tschy.mergelab.accounts.GitLabAccount
 import com.github.r1tschy.mergelab.accounts.GitlabAccessToken
-import com.intellij.collaboration.auth.ui.AccountsListModelBase
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.project.Project
 import com.intellij.ui.awt.RelativePoint
 import javax.swing.JComponent
 
-class GitLabAccountsModel : AccountsListModelBase<GitLabAccount, GitlabAccessToken>() {
+class GitLabAccountsListModel(private val project: Project) :
+    AccountsListModelBase<GitLabAccount, GitlabAccessToken>() {
 
     override fun addAccount(parentComponent: JComponent, point: RelativePoint?) {
         val dataContext = DataManager.getInstance().getDataContext(parentComponent)
@@ -33,5 +34,9 @@ class GitLabAccountsModel : AccountsListModelBase<GitLabAccount, GitlabAccessTok
             newCredentials[account] = loginData.token
             notifyCredentialsChanged(account)
         }
+    }
+
+    private fun notifyCredentialsChanged(account: GitLabAccount) {
+        accountsListModel.contentsChanged(account)
     }
 }

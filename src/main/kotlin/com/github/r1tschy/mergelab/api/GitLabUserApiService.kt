@@ -20,7 +20,7 @@ data class UserDetails(
     /**
      * URL for avatar (can be absolute or relative).
      */
-    val avatarLocation: String?
+    override val avatarUrl: String?
 ) : AccountDetails
 
 

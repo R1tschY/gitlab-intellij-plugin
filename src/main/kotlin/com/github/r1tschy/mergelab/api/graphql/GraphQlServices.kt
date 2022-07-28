@@ -36,7 +36,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             return UserDetails(
                 username = currentUser.username,
                 name = currentUser.name,
-                avatarLocation = currentUser.avatarUrl
+                avatarUrl = currentUser.avatarUrl
             )
         }
     }
