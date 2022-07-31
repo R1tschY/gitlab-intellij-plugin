@@ -48,19 +48,9 @@ class OpenInBrowserActionGroup : ActionGroup(
     override fun update(e: AnActionEvent) {
         val ctx = getContext(e.dataContext)
         e.presentation.isEnabledAndVisible = !ContainerUtil.isEmpty(ctx)
-        // FUTURE: >= 2022.1: e.presentation.isPerformGroup = data?.size == 1
-        // FUTURE: >= 2022.1: e.presentation.isPopupGroup = true
+        e.presentation.isPerformGroup = ctx?.size == 1
+        e.presentation.isPopupGroup = true
     }
-
-    override fun canBePerformed(context: DataContext): Boolean {
-        // FUTURE: >= 2022.1: REMOVE
-        return getContext(context)?.size == 1
-    }
-
-    // FUTURE: >= 2022.1: REMOVE
-    override fun isPopup(): Boolean = true
-
-    override fun disableIfNoVisibleChildren(): Boolean = false
 
     private fun getContext(ctx: DataContext): List<Context>? {
         val project = ctx.getData(CommonDataKeys.PROJECT) ?: return null
