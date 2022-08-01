@@ -72,9 +72,12 @@ class IntellijHttpClient(
             }
             .connect {
                 val connection = it.connection as HttpURLConnection
-                // TODO check content type / encoding
+                // TODO check content type
                 if (connection.responseCode >= 400) {
-                    // TODO error
+                    throw HttpStatusCodeException(
+                        "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
+                        connection.responseCode
+                    )
                 }
 
                 request.readContent(IntellijHttpResponse(it, progressIndicator))
@@ -122,8 +125,12 @@ class IntellijHttpClient(
                 val connection = it.connection as HttpURLConnection
                 it.write(serializer.serialize(request))
 
+                // TODO check content type
                 if (connection.responseCode >= 400) {
-                    // TODO error
+                    throw HttpStatusCodeException(
+                        "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
+                        connection.responseCode
+                    )
                 }
 
                 it.readString()
