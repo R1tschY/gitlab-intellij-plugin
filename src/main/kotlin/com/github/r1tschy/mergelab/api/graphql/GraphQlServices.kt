@@ -22,6 +22,7 @@ import com.github.r1tschy.mergelab.api.graphql.queries.enums.MergeRequestState a
 class GraphQlServices(private val httpClient: HttpClient, private val token: GitlabAccessToken) : GitLabUserApiService,
     GitlabProjectsApiService, GitlabMergeRequestsApiService {
 
+    @Throws(IOException::class)
     @RequiresBackgroundThread
     override fun getUserDetails(
         processIndicator: ProgressIndicator
@@ -56,6 +57,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
         }, processIndicator)
     }
 
+    @Throws(IOException::class)
     override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitlabRepositoryUrls> {
         // TODO: pagination
         return httpClient
@@ -81,6 +83,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             ?: emptyList()
     }
 
+    @Throws(IOException::class)
     override fun search(
         query: String?,
         membership: Boolean,
@@ -105,6 +108,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             ?: emptyList()
     }
 
+    @Throws(IOException::class)
     override fun findMergeRequestsUsingSourceBranch(
         project: GitLabProjectPath,
         sourceBranch: String,

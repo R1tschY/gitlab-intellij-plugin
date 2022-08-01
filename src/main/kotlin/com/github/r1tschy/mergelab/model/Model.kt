@@ -127,6 +127,10 @@ data class GitLabProjectCoord(val server: GitLabServerUrl, val projectPath: GitL
     fun toUrl(): String {
         return "${server.toUrl()}/${projectPath.path}"
     }
+
+    override fun toString(): String {
+        return toUrl()
+    }
 }
 
 data class GitLabProjectPath(val path: String) {

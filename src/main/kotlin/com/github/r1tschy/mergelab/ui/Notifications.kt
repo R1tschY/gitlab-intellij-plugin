@@ -23,5 +23,7 @@ object Notifications {
 
     const val OPEN_IN_BROWSER_FILE_IS_NOT_IN_REPO = "com.github.r1tschy.mergelab.open_in_browser.file_is_not_in_repo"
     const val OPEN_IN_BROWSER_REPO_HAS_NO_HEAD = "com.github.r1tschy.mergelab.open_in_browser.repo_has_no_head"
+    const val FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH = "com.github.r1tschy.mergelab.mr.failed_getting_mr_for_branch"
+    const val LOGIN_FAILED = "com.github.r1tschy.mergelab.accounts.login_failed"
     const val MISSING_DEFAULT_ACCOUNT = "com.github.r1tschy.mergelab.missing_default_account"
 }

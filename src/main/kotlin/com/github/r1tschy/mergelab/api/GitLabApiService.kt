@@ -18,24 +18,30 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.CalledInAny
 import java.awt.Image
+import java.io.IOException
 
 class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: RestApiV4Services) : GitLabApi {
+    @Throws(IOException::class)
     override fun getUserDetails(processIndicator: ProgressIndicator): UserDetails {
         return graphQl.getUserDetails(processIndicator)
     }
 
+    @Throws(IOException::class)
     override fun getAvatar(processIndicator: ProgressIndicator, location: String): Image? {
         return graphQl.getAvatar(processIndicator, location)
     }
 
+    @Throws(IOException::class)
     override fun getProtectedBranches(project: GitLabProjectPath, processIndicator: ProgressIndicator): List<String> {
         return restApi.getProtectedBranches(project, processIndicator)
     }
 
+    @Throws(IOException::class)
     override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitlabRepositoryUrls> {
         return graphQl.getRepositoriesWithMembership(processIndicator)
     }
 
+    @Throws(IOException::class)
     override fun search(
         query: String?,
         membership: Boolean,
@@ -45,6 +51,7 @@ class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: R
         return graphQl.search(query, membership, sort, processIndicator)
     }
 
+    @Throws(IOException::class)
     override fun findMergeRequestsUsingSourceBranch(
         project: GitLabProjectPath,
         sourceBranch: String,

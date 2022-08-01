@@ -56,6 +56,7 @@ class IntellijHttpClient(
         sessionCustomizers.add(customizer)
     }
 
+    @Throws(IOException::class)
     override fun <T> execute(
         request: HttpRequest<T>,
         progressIndicator: ProgressIndicator,
@@ -80,6 +81,7 @@ class IntellijHttpClient(
             }
     }
 
+    @Throws(IOException::class)
     override fun <T : Any> execute(
         request: JsonRequest<T>,
         progressIndicator: ProgressIndicator,
@@ -100,6 +102,7 @@ class IntellijHttpClient(
         )
     }
 
+    @Throws(IOException::class)
     override fun <T : Any> query(
         request: GraphQLClientRequest<T>,
         progressIndicator: ProgressIndicator,

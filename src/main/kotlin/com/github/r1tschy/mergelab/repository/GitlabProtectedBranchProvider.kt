@@ -11,6 +11,7 @@ import com.intellij.openapi.components.*
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import git4idea.config.GitProtectedBranchProvider
 import git4idea.config.GitSharedSettings
 import git4idea.fetch.GitFetchHandler
@@ -79,6 +80,7 @@ internal class GitlabProtectedBranchPatternsFetcher : GitFetchHandler {
         }
     }
 
+    @RequiresBackgroundThread
     private fun fetchProtectedBranchPatterns(
         project: Project,
         fetches: Map<GitRepository, List<GitRemote>>,
@@ -110,11 +112,18 @@ internal class GitlabProtectedBranchPatternsFetcher : GitFetchHandler {
         for (gitlabProject in gitlabProjects) {
             val serverUrl = gitlabProject.server
             val account = accounts.find { it.server == serverUrl }!!
-            apiService.apiFor(account)?.let {
-                val protectedBranches = it.getProtectedBranches(gitlabProject.projectPath, indicator)
-                LOG.info("Fetched protected branch patterns for $gitlabProject: $protectedBranches")
-                result.add(Pair(gitlabProject, protectedBranches))
-            } ?: LOG.warn("Ignored $gitlabProject: credentials are missing")
+            val api = apiService.apiFor(account)
+            if (api == null) {
+                LOG.warn("Ignored $gitlabProject: credentials are missing")
+            } else {
+                try {
+                    val protectedBranches = api.getProtectedBranches(gitlabProject.projectPath, indicator)
+                    LOG.info("Fetched protected branch patterns for $gitlabProject: $protectedBranches")
+                    result.add(Pair(gitlabProject, protectedBranches))
+                } catch (e: Exception) {
+                    LOG.error("Failed to fetch protected branch patterns for $gitlabProject: $e")
+                }
+            }
         }
         return result
     }

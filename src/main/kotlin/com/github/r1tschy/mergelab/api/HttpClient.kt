@@ -59,12 +59,14 @@ interface HttpClient {
      */
     fun setSessionCustomizer(customizer: HttpRequestCustomizer)
 
+    @Throws(IOException::class)
     fun <T> execute(
         request: HttpRequest<T>,
         progressIndicator: ProgressIndicator,
         requestCustomizer: HttpRequestCustomizer = NoopHttpRequestCustomizer()
     ): T
 
+    @Throws(IOException::class)
     fun <T : Any> execute(
         request: JsonRequest<T>,
         progressIndicator: ProgressIndicator,
@@ -74,6 +76,7 @@ interface HttpClient {
     /**
      * Executes [GraphQLClientRequest] and returns corresponding [GraphQLClientResponse].
      */
+    @Throws(IOException::class)
     fun <T : Any> query(
         request: GraphQLClientRequest<T>,
         progressIndicator: ProgressIndicator,

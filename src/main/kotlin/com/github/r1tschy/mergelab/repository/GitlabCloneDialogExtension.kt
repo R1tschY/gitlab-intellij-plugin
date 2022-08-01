@@ -159,9 +159,14 @@ internal class GitlabCloneDialogExtensionComponent(
             private var projects: List<GitlabRepositoryUrls> = listOf()
 
             override fun run(indicator: ProgressIndicator) {
-                projects = service<GitLabApiService>()
-                    .apiFor(selectedAccount!!)!!
-                    .search(query = query, membership = true, processIndicator = indicator)
+                try {
+                    projects = service<GitLabApiService>()
+                        .apiFor(selectedAccount!!)!!
+                        .search(query = query, membership = true, processIndicator = indicator)
+                } catch (e: Exception) {
+                    projects = listOf()
+                    LOG.error("Failed to search for projects in ${selectedAccount!!.server}: $e")
+                }
             }
 
             override fun onSuccess() {

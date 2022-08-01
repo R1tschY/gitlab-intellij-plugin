@@ -76,7 +76,7 @@ internal data class GitlabLoginRequest(
  * Request login information for login with PAT (Personal Access Token).
  */
 internal class LoginWithTokenDialog(
-    private val request: GitlabLoginRequest, project: Project?, parent: Component?
+    private val request: GitlabLoginRequest, val project: Project, parent: Component?
 ) : DialogWrapper(project, parent, false, IdeModalityType.PROJECT) {
     private var result: GitlabLoginData? = null
     private var tokenError: String? = null
@@ -157,7 +157,7 @@ internal class LoginWithTokenDialog(
         setBusy(true)
         service<ProgressManager>()
             .submitIOTask(emptyProgressIndicator) {
-                service<GitLabApiService>().apiFor(getServerUrl(), getAccessToken()).getUserDetails(it)
+                service<GitLabApiService>().apiFor(serverUrl, getAccessToken()).getUserDetails(it)
             }
             .handleOnEdt(modalityState) { userDetails: UserDetails?, error: Throwable? ->
                 setBusy(false)

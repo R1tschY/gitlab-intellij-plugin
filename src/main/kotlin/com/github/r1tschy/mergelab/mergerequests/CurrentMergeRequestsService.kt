@@ -4,6 +4,8 @@ import com.github.r1tschy.mergelab.api.GitLabApiService
 import com.github.r1tschy.mergelab.model.GitLabRemote
 import com.github.r1tschy.mergelab.services.GitLabRemotesManager
 import com.github.r1tschy.mergelab.services.GitlabRemoteChangesListener
+import com.github.r1tschy.mergelab.ui.Notifications
+import com.github.r1tschy.mergelab.ui.Notifications.FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -17,6 +19,7 @@ import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.messages.Topic
 import git4idea.repo.GitRepository
 import org.jetbrains.annotations.CalledInAny
+import java.io.IOException
 import java.util.stream.Collectors.toList
 
 data class MergeRequestWorkingCopy(val repoRoot: VirtualFile, val mr: MergeRequest)
@@ -63,15 +66,27 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
 
                     // TODO: notify when token is missing
                     LOG.info("Searching for merge requests for ${currentBranch.name} on ${remote.projectCoord.server} ...")
-                    val mergeRequests = apiService.apiFor(remote.projectCoord.server)
-                        ?.findMergeRequestsUsingSourceBranch(
-                            remote.projectCoord.projectPath,
-                            remoteBranchName,
-                            progressIndicator
+                    var mergeRequests: List<MergeRequest>?
+                    try {
+                        mergeRequests = apiService.apiFor(remote.projectCoord.server)
+                            ?.findMergeRequestsUsingSourceBranch(
+                                remote.projectCoord.projectPath,
+                                remoteBranchName,
+                                progressIndicator
+                            )
+                    } catch (e: IOException) {
+                        Notifications.showError(
+                            project,
+                            FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH,
+                            "Failed getting merge requests",
+                            "Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e"
                         )
+                        LOG.error("Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e")
+                        mergeRequests = null
+                    }
 
-                    if (mergeRequests != null && mergeRequests.isNotEmpty()) {
-                        LOG.info("Found for merge requests for ${currentBranch.name} on ${remote.projectCoord.server}: $mergeRequests")
+                    if (!mergeRequests.isNullOrEmpty()) {
+                        LOG.info("Found merge requests for ${currentBranch.name} on ${remote.projectCoord.server}: $mergeRequests")
                         for (mr in mergeRequests) {
                             result.add(MergeRequestWorkingCopy(remote.repo.root, mr))
                         }
