@@ -44,7 +44,7 @@ data class GitlabLoginData(val server: GitLabServerUrl, val userDetails: UserDet
 /**
  * Show dialog to add new account.
  */
-fun showAddAccountDialog(project: Project?, parent: Component?): GitlabLoginData? {
+fun showAddAccountDialog(project: Project, parent: Component?): GitlabLoginData? {
     return LoginWithTokenDialog(GitlabLoginRequest(), project, parent).showAndGetLoginData()
 }
 
@@ -52,7 +52,7 @@ fun showAddAccountDialog(project: Project?, parent: Component?): GitlabLoginData
 /**
  * Show dialog to change access token.
  */
-fun showEditTokenDialog(account: GitLabAccount, project: Project?, parent: Component?): GitlabLoginData? {
+fun showEditTokenDialog(account: GitLabAccount, project: Project, parent: Component?): GitlabLoginData? {
     val request = GitlabLoginRequest(
         server = account.server,
         isServerEditable = false
