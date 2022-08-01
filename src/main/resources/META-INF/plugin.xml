@@ -68,10 +68,16 @@
             <add-to-group group-id="VcsSelectionHistoryDialog.Popup" anchor="last"/>
         </action>
 
+        <action id="com.github.r1tschy.mergelab.actions.CreateMergeRequestAction"
+                class="com.github.r1tschy.mergelab.actions.CreateMergeRequestAction">
+            <add-to-group group-id="Git.Menu"/>
+        </action>
+
         <group id="com.github.r1tschy.mergelab" text="GitLab" popup="true">
             <add-to-group group-id="Git.MainMenu" anchor="before" relative-to-action="Git.Configure.Remotes"/>
 
             <reference ref="com.github.r1tschy.mergelab.actions.OpenInBrowserActionGroup"/>
+            <reference ref="com.github.r1tschy.mergelab.actions.CreateMergeRequestAction"/>
         </group>
     </actions>
 

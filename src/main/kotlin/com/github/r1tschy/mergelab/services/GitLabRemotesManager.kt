@@ -19,6 +19,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
+import git4idea.repo.GitRemote
 import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryChangeListener
 
@@ -50,6 +51,10 @@ class GitLabRemotesManager(private val project: Project) {
 
     fun getRemotesFor(gitRepository: GitRepository): List<GitLabRemote> {
         return remotes.filter { it.repo == gitRepository }
+    }
+
+    fun getRemoteFor(remote: GitRemote): GitLabRemote? {
+        return remotes.find { it.remote == remote }
     }
 
     private fun updateRepositories() {
