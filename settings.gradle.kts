@@ -1,1 +1,1 @@
-rootProject.name = "mergelab"
+rootProject.name = "GitLab Repositories"

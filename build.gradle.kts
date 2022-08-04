@@ -90,7 +90,7 @@ qodana {
 graphql {
     client {
         endpoint = "https://gitlab.com/api/graphql"
-        packageName = "com.github.r1tschy.mergelab.api.graphql.queries"
+        packageName = "de.richardliebscher.intellij.gitlab.api.graphql.queries"
         serializer = if (useJackson) { GraphQLSerializer.JACKSON } else { GraphQLSerializer.KOTLINX }
     }
 }

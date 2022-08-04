@@ -1,6 +1,6 @@
-# GitLab4Idea
+# GitLab Repositories IntelliJ Plugin
 
-![Build](https://github.com/R1tschY/mergelab/workflows/Build/badge.svg)
+![Build](https://github.com/R1tschY/gitlab-intellij-plugin/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 
@@ -32,10 +32,10 @@ Requires Git plugin.
 
 - Using IDE built-in plugin system:
   
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "mergelab"</kbd> >
+  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "GitLab Repositories"</kbd> >
   <kbd>Install Plugin</kbd>
   
 - Manually:
 
-  Download the [latest release](https://github.com/R1tschY/mergelab/releases/latest) and install it manually using
+  Download the [latest release](https://github.com/R1tschY/gitlab-intellij-plugin/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
