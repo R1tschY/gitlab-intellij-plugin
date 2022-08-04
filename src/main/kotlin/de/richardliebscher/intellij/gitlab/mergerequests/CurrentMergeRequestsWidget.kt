@@ -40,7 +40,7 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     @RequiresEdt
     override fun getTooltipText(): String? {
         return mergeRequest?.let {
-            return "Merge Request ${it.id}: ${it.title}"
+            return "Merge Request ${it.iid.asString()}: ${it.title}"
         }
     }
 
