@@ -47,7 +47,7 @@ import javax.swing.event.ListDataListener
 import kotlin.reflect.KClass
 
 class GitlabCloneDialogExtension : VcsCloneDialogExtension {
-    @Suppress("OverridingDeprecatedMember")
+    @Deprecated("Use createMainComponent(Project, ModalityState)")
     override fun createMainComponent(project: Project): VcsCloneDialogExtensionComponent {
         throw UnsupportedOperationException("Shouldn't be called")
     }
