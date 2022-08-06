@@ -3,6 +3,7 @@
 package de.richardliebscher.intellij.gitlab.repository
 
 import com.intellij.collaboration.auth.AccountsListener
+import com.intellij.dvcs.ui.CloneDvcsValidationUtils
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.service
@@ -28,6 +29,8 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.dsl.gridLayout.VerticalAlign
 import com.intellij.ui.layout.listCellRenderer
+import com.intellij.util.ui.JBEmptyBorder
+import com.intellij.util.ui.UIUtil
 import de.richardliebscher.intellij.gitlab.GitLabIcons
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAccount
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAccountsManager
@@ -99,14 +102,14 @@ internal class GitlabCloneDialogExtensionComponent(
         val accountSelected = selectedAccountProperty.toPredicate { it != null }
 
         projectsPanel = panel {
-            row("GitLab Server") {
+            row("Account:") {
                 comboBox(
                     KComboboxProxyModel(GitLabAccount::class, accountsModel, selectedAccountProperty),
                     listCellRenderer { value, _, _ -> text = value.toString() })
                     .horizontalAlign(HorizontalAlign.FILL)
 
-                cell(JSeparator(JSeparator.VERTICAL))
-                    .verticalAlign(VerticalAlign.FILL)
+//                cell(JSeparator(JSeparator.VERTICAL))
+//                    .verticalAlign(VerticalAlign.FILL)
 
                 // TODO: avatar
             }
@@ -114,37 +117,43 @@ internal class GitlabCloneDialogExtensionComponent(
             row("Search:") {
                 cell(searchTextField)
                     .enabledIf(accountSelected)
+                    .resizableColumn()
+                    .verticalAlign(VerticalAlign.FILL)
                     .horizontalAlign(HorizontalAlign.FILL)
 
-                button("Go") {
-                    doSearch()
-                }
+                button("Go") { doSearch() }
+                    .enabledIf(accountSelected)
             }
 
             row {
                 cell(ScrollPaneFactory.createScrollPane(projectsList))
                     .enabledIf(accountSelected)
+                    .resizableColumn()
                     .horizontalAlign(HorizontalAlign.FILL)
                     .verticalAlign(VerticalAlign.FILL)
-                    .resizableColumn()
-            }
+            }.resizableRow()
 
             row("Directory:") {
                 textFieldWithBrowseButton()
                     .enabledIf(accountSelected)
+                    .resizableColumn()
                     .horizontalAlign(HorizontalAlign.FILL)
-                    .component
-                    .addBrowseFolderListener(
-                        "Destination Directory",
-                        "Select a parent directory for the clone",
-                        project,
-                        FileChooserDescriptorFactory.createSingleFolderDescriptor()
-                            .apply {
+                    .validationOnApply {
+                        CloneDvcsValidationUtils.checkDirectory(it.text, it.textField as JComponent)
+                    }
+                    .apply {
+                        component.addBrowseFolderListener(
+                            "Destination Directory",
+                            "Select a parent directory for the clone",
+                            project,
+                            FileChooserDescriptorFactory.createSingleFolderDescriptor().apply {
                                 isShowFileSystemRoots = true
                                 isHideIgnored = false
                             })
+                    }
             }
         }
+        projectsPanel.border = JBEmptyBorder(UIUtil.getRegularPanelInsets())
 
         wrapper.setContent(projectsPanel)
     }
@@ -161,11 +170,10 @@ internal class GitlabCloneDialogExtensionComponent(
             override fun run(indicator: ProgressIndicator) {
                 try {
                     projects = service<GitLabApiService>()
-                        .apiFor(selectedAccount!!)!!
+                        .apiFor(selectedAccount!!)!! // TODO: maybe no token found
                         .search(query = query, membership = true, processIndicator = indicator)
                 } catch (e: Exception) {
-                    projects = listOf()
-                    LOG.error("Failed to search for projects in ${selectedAccount!!.server}: $e")
+                    LOG.error("Failed to search personal projects of ${selectedAccount}: $e")
                 }
             }
 
