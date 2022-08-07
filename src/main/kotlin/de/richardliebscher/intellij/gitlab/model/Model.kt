@@ -3,7 +3,6 @@
 package de.richardliebscher.intellij.gitlab.model
 
 import com.intellij.collaboration.api.ServerPath
-import com.intellij.openapi.util.NlsSafe
 import com.intellij.util.xmlb.annotations.Attribute
 import com.intellij.util.xmlb.annotations.Tag
 import de.richardliebscher.intellij.gitlab.exceptions.GitLabIllegalUrlException
@@ -115,7 +114,6 @@ data class GitLabServerUrl(
 }
 
 data class GitLabProjectCoord(val server: GitLabServerUrl, val projectPath: GitLabProjectPath) {
-    @NlsSafe
     fun toDisplayName(): String {
         return if (server.isDefault()) {
             "${server.toDisplayName()}/${projectPath.toDisplayName()}"
@@ -130,6 +128,16 @@ data class GitLabProjectCoord(val server: GitLabServerUrl, val projectPath: GitL
 
     override fun toString(): String {
         return toUrl()
+    }
+
+    fun guessCloneUrl(protocol: GitProtocol): String {
+        return when(protocol) {
+            GitProtocol.HTTPS -> "${server.toUrl()}/${projectPath.asString()}.git"
+            GitProtocol.SSH -> {
+                // Only best-effort: host or port may differ
+                "git@${server.host}:${projectPath.asString()}.git"
+            }
+        }
     }
 }
 

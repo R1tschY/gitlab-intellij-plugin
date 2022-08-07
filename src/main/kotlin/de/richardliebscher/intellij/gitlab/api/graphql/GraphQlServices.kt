@@ -58,7 +58,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
     }
 
     @Throws(IOException::class)
-    override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitlabRepositoryUrls> {
+    override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitLabRepositoryUrls> {
         // TODO: pagination
         return httpClient
             .query(
@@ -72,7 +72,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             ?.nodes
             ?.mapNotNull {
                 it?.project?.let { project ->
-                    GitlabRepositoryUrls(
+                    GitLabRepositoryUrls(
                         project.id,
                         project.name,
                         project.sshUrlToRepo,
@@ -89,7 +89,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
         membership: Boolean,
         sort: String,
         processIndicator: ProgressIndicator
-    ): List<GitlabRepositoryUrls> {
+    ): List<GitLabRepositoryUrls> {
         return httpClient
             .query(
                 SearchProjects(
@@ -102,7 +102,7 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             ?.nodes
             ?.mapNotNull {
                 it?.let { project ->
-                    GitlabRepositoryUrls(id = project.fullPath, name = project.name, sshUrl = null, httpsUrl = null)
+                    GitLabRepositoryUrls(id = project.fullPath, name = project.name, sshUrl = null, httpsUrl = null)
                 }
             }
             ?: emptyList()

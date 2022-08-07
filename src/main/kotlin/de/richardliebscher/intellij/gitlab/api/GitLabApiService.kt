@@ -13,6 +13,7 @@ import de.richardliebscher.intellij.gitlab.api.graphql.GraphQlServices
 import de.richardliebscher.intellij.gitlab.api.intellij.IntellijHttpClient
 import de.richardliebscher.intellij.gitlab.api.restV4.JacksonJsonSerializer
 import de.richardliebscher.intellij.gitlab.api.restV4.RestApiV4Services
+import de.richardliebscher.intellij.gitlab.exceptions.MissingAccessTokenException
 import de.richardliebscher.intellij.gitlab.mergerequests.MergeRequest
 import de.richardliebscher.intellij.gitlab.model.GitLabProjectPath
 import de.richardliebscher.intellij.gitlab.model.GitLabServerUrl
@@ -37,7 +38,7 @@ class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: R
     }
 
     @Throws(IOException::class)
-    override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitlabRepositoryUrls> {
+    override fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitLabRepositoryUrls> {
         return graphQl.getRepositoriesWithMembership(processIndicator)
     }
 
@@ -47,7 +48,7 @@ class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: R
         membership: Boolean,
         sort: String,
         processIndicator: ProgressIndicator
-    ): List<GitlabRepositoryUrls> {
+    ): List<GitLabRepositoryUrls> {
         return graphQl.search(query, membership, sort, processIndicator)
     }
 
@@ -72,6 +73,11 @@ class GitLabApiService {
     @CalledInAny
     fun apiFor(account: GitLabAccount): GitLabApi? {
         return authService.getToken(account)?.let { apiFor(account.server, it) }
+    }
+
+    @CalledInAny
+    fun requireApiFor(account: GitLabAccount): GitLabApi {
+        return apiFor(account) ?: throw MissingAccessTokenException()
     }
 
     @CalledInAny

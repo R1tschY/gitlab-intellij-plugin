@@ -15,8 +15,8 @@ import de.richardliebscher.intellij.gitlab.api.GitLabApiService
 import de.richardliebscher.intellij.gitlab.model.GitLabRemote
 import de.richardliebscher.intellij.gitlab.services.GitLabRemotesManager
 import de.richardliebscher.intellij.gitlab.services.GitlabRemoteChangesListener
-import de.richardliebscher.intellij.gitlab.ui.Notifications
-import de.richardliebscher.intellij.gitlab.ui.Notifications.FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH
+import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications
+import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications.FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH
 import git4idea.repo.GitRepository
 import org.jetbrains.annotations.CalledInAny
 import java.io.IOException
@@ -75,7 +75,7 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
                                 progressIndicator
                             )
                     } catch (e: IOException) {
-                        Notifications.showError(
+                        GitLabNotifications.showError(
                             project,
                             FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH,
                             "Failed getting merge requests",

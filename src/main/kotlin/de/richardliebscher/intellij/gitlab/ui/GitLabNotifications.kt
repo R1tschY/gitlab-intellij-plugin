@@ -8,8 +8,8 @@ import com.intellij.openapi.util.NlsContexts.NotificationContent
 import com.intellij.openapi.util.NlsContexts.NotificationTitle
 import com.intellij.openapi.vcs.VcsNotifier
 
-object Notifications {
-    private val LOG: Logger = Logger.getInstance(Notifications::class.java)
+object GitLabNotifications {
+    private val LOG: Logger = Logger.getInstance(GitLabNotifications::class.java)
 
     fun showError(
         project: Project,
@@ -26,4 +26,6 @@ object Notifications {
     const val FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH = "de.richardliebscher.intellij.gitlab.mr.failed_getting_mr_for_branch"
     const val LOGIN_FAILED = "de.richardliebscher.intellij.gitlab.accounts.login_failed"
     const val MISSING_DEFAULT_ACCOUNT = "de.richardliebscher.intellij.gitlab.missing_default_account"
+    const val CLONE_UNABLE_TO_CREATE_DESTINATION_DIR = "de.richardliebscher.intellij.gitlab.clone.unable_to_create_destination_dir"
+    const val CLONE_UNABLE_TO_FIND_DESTINATION = "de.richardliebscher.intellij.gitlab.clone.unable_to_find_destination"
 }
