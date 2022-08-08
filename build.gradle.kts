@@ -12,7 +12,7 @@ plugins {
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.7.10"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij") version "1.7.0"
+    id("org.jetbrains.intellij") version "1.8.0"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
@@ -26,7 +26,7 @@ plugins {
 }
 
 group = properties("pluginGroup")
-version = properties("pluginVersion")
+version = properties("pluginVersion") + "+" + properties("pluginSinceBuild")
 
 // Configure project's dependencies
 repositories {
@@ -40,7 +40,10 @@ dependencies {
     }
 
     if (useJackson) {
-        implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.8")
+        implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.8") {
+            exclude(group = "org.jetbrains.kotlin")
+            exclude(group = "org.jetbrains.kotlinx")
+        }
         implementation("com.expediagroup", "graphql-kotlin-client-jackson", "5.3.2") {
             exclude(group = "org.jetbrains.kotlin")
             exclude(group = "org.jetbrains.kotlinx")
@@ -63,7 +66,7 @@ kotlin {
     }
 }
 
-// Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
+// Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
     pluginName.set(properties("pluginName"))
     version.set(properties("platformVersion"))
