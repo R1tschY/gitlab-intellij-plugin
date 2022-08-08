@@ -32,9 +32,12 @@
                 implementation="de.richardliebscher.intellij.gitlab.mergerequests.CurrentMergeRequestsWidget$Factory"
                 order="before gitWidget"/>
 
-        <!-- Vcs -->
+        <!-- Repository -->
         <openapi.vcs.ui.cloneDialog.VcsCloneDialogExtension
                 implementation="de.richardliebscher.intellij.gitlab.repository.GitlabCloneDialogExtension"/>
+        <vcsAnnotationGutterActionProvider
+                implementation="de.richardliebscher.intellij.gitlab.actions.GitLabAnnotationGutterActionProvider"/>
+
     </extensions>
 
     <extensions defaultExtensionNs="Git4Idea">
@@ -60,8 +63,8 @@
 
     <!-- Actions -->
     <actions>
-        <action id="de.richardliebscher.intellij.gitlab.actions.OpenInBrowserActionGroup"
-                class="de.richardliebscher.intellij.gitlab.actions.OpenInBrowserActionGroup">
+        <action id="de.richardliebscher.intellij.gitlab.actions.OpenInBrowserAction"
+                class="de.richardliebscher.intellij.gitlab.actions.OpenInBrowserAction">
             <override-text place="EditorTabPopup"/>
             <override-text place="ProjectViewPopup" use-text-of-place="EditorTabPopup"/>
             <override-text place="EditorPopup" use-text-of-place="EditorTabPopup"/>
@@ -82,7 +85,7 @@
         <group id="de.richardliebscher.intellij.gitlab" text="GitLab" popup="true">
             <add-to-group group-id="Git.MainMenu" anchor="before" relative-to-action="Git.Configure.Remotes"/>
 
-            <reference ref="de.richardliebscher.intellij.gitlab.actions.OpenInBrowserActionGroup"/>
+            <reference ref="de.richardliebscher.intellij.gitlab.actions.OpenInBrowserAction"/>
             <reference ref="de.richardliebscher.intellij.gitlab.actions.CreateMergeRequestAction"/>
         </group>
     </actions>

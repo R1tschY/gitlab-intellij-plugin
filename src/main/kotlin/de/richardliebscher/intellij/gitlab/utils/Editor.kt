@@ -9,7 +9,7 @@ import org.apache.http.client.utils.URIBuilder
 
 
 fun buildCommitUrl(projectCoord: GitLabProjectCoord, hash: String): String {
-    return "${projectCoord.toUrl()}/-/commit/${URIUtil.encodePath(hash)}$"
+    return "${projectCoord.toUrl()}/-/commit/${URIUtil.encodePath(hash)}"
 }
 
 
