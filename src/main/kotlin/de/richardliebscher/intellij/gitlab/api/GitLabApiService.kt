@@ -46,7 +46,7 @@ class GitLabApiImpl(private val graphQl: GraphQlServices, private val restApi: R
     override fun search(
         query: String?,
         membership: Boolean,
-        sort: String,
+        sort: String?,
         processIndicator: ProgressIndicator
     ): List<GitLabRepositoryUrls> {
         return graphQl.search(query, membership, sort, processIndicator)

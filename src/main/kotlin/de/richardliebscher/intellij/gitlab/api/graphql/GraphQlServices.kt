@@ -8,6 +8,7 @@ import de.richardliebscher.intellij.gitlab.api.graphql.queries.CurrentUser
 import de.richardliebscher.intellij.gitlab.api.graphql.queries.FindMergeRequestsUsingSourceBranch
 import de.richardliebscher.intellij.gitlab.api.graphql.queries.RepositoriesWithMembership
 import de.richardliebscher.intellij.gitlab.api.graphql.queries.SearchProjects
+import de.richardliebscher.intellij.gitlab.api.graphql.queries.searchprojects.Project
 import de.richardliebscher.intellij.gitlab.exceptions.UnauthorizedAccessException
 import de.richardliebscher.intellij.gitlab.mergerequests.MergeRequest
 import de.richardliebscher.intellij.gitlab.mergerequests.MergeRequestId
@@ -18,6 +19,21 @@ import java.io.IOException
 import javax.imageio.ImageIO
 import de.richardliebscher.intellij.gitlab.api.graphql.queries.enums.MergeRequestState as ApiMergeRequestState
 
+const val DEFAULT_PAGINATION_SIZE = 100
+const val MAX_LOADING_ELEMENTS = 500
+
+
+data class PageInfo(val endCursor: String?, val hasNextPage: Boolean) {
+    companion object {
+        fun empty(): PageInfo {
+            return PageInfo(null, false)
+        }
+
+        fun firstPage(): PageInfo {
+            return PageInfo(null, true)
+        }
+    }
+}
 
 class GraphQlServices(private val httpClient: HttpClient, private val token: GitlabAccessToken) : GitLabUserApiService,
     GitlabProjectsApiService, GitlabMergeRequestsApiService {
@@ -87,25 +103,35 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
     override fun search(
         query: String?,
         membership: Boolean,
-        sort: String,
+        sort: String?,
         processIndicator: ProgressIndicator
     ): List<GitLabRepositoryUrls> {
-        return httpClient
-            .query(
-                SearchProjects(
-                    SearchProjects.Variables(q = query, membership = membership, sort = sort, after = null, first = 20)
-                ),
-                processIndicator, BearerAuthorization(token)
+        return loadAll(
+            { l: MutableList<Project>, v -> l.addAllIfNotNull(v.projects?.nodes) },
+            { projects?.run { PageInfo(pageInfo.endCursor, pageInfo.hasNextPage) } ?: PageInfo.empty() }
+        ) { after, first ->
+            httpClient
+                .query(
+                    SearchProjects(
+                        SearchProjects.Variables(
+                            q = query,
+                            membership = membership,
+                            sort = sort,
+                            after = after,
+                            first = first
+                        )
+                    ),
+                    processIndicator, BearerAuthorization(token)
+                )
+                .check()
+        }.map {
+            GitLabRepositoryUrls(
+                id = it.fullPath,
+                name = it.name,
+                sshUrl = it.sshUrlToRepo,
+                httpsUrl = it.httpUrlToRepo
             )
-            .check()
-            .projects
-            ?.nodes
-            ?.mapNotNull {
-                it?.let { project ->
-                    GitLabRepositoryUrls(id = project.fullPath, name = project.name, sshUrl = null, httpsUrl = null)
-                }
-            }
-            ?: emptyList()
+        }
     }
 
     @Throws(IOException::class)
@@ -148,4 +174,25 @@ class GraphQlServices(private val httpClient: HttpClient, private val token: Git
             else -> MergeRequestState.OTHER
         }
     }
+}
+
+fun <T> MutableList<T>.addAllIfNotNull(elements: Collection<T?>?) {
+    elements?.forEach { e -> e?.let(::add) }
+}
+
+private fun <T, R> loadAll(
+    accu: (MutableList<R>, T) -> Unit,
+    pageInfo: T.() -> PageInfo,
+    query: (after: String?, first: Int) -> T
+): List<R> {
+    var lastPage = PageInfo.firstPage()
+    val ret = mutableListOf<R>()
+
+    do {
+        val value = query.invoke(lastPage.endCursor, DEFAULT_PAGINATION_SIZE)
+        lastPage = pageInfo.invoke(value)
+        accu.invoke(ret, value)
+    } while (lastPage.hasNextPage && lastPage.endCursor != null && ret.size < MAX_LOADING_ELEMENTS)
+
+    return ret
 }

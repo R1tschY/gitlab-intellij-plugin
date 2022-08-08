@@ -10,5 +10,5 @@ interface GitlabProjectsApiService {
     fun getRepositoriesWithMembership(processIndicator: ProgressIndicator): List<GitLabRepositoryUrls>
 
     @Throws(IOException::class)
-    fun search(query: String?, membership: Boolean, sort: String = "stars_desc", processIndicator: ProgressIndicator): List<GitLabRepositoryUrls>
+    fun search(query: String?, membership: Boolean, sort: String? = "stars_desc", processIndicator: ProgressIndicator): List<GitLabRepositoryUrls>
 }
