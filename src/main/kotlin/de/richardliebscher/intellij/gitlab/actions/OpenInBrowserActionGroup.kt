@@ -16,9 +16,9 @@ import com.intellij.vcs.log.VcsLogDataKeys
 import de.richardliebscher.intellij.gitlab.GitLabIcons
 import de.richardliebscher.intellij.gitlab.model.GitLabRemote
 import de.richardliebscher.intellij.gitlab.services.GitLabRemotesManager
-import de.richardliebscher.intellij.gitlab.ui.Notifications
-import de.richardliebscher.intellij.gitlab.ui.Notifications.OPEN_IN_BROWSER_FILE_IS_NOT_IN_REPO
-import de.richardliebscher.intellij.gitlab.ui.Notifications.OPEN_IN_BROWSER_REPO_HAS_NO_HEAD
+import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications
+import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications.OPEN_IN_BROWSER_FILE_IS_NOT_IN_REPO
+import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications.OPEN_IN_BROWSER_REPO_HAS_NO_HEAD
 import de.richardliebscher.intellij.gitlab.utils.buildCommitUrl
 import de.richardliebscher.intellij.gitlab.utils.buildFileUrl
 import git4idea.GitFileRevision
@@ -124,7 +124,7 @@ class OpenInBrowserActionGroup : ActionGroup(
             override fun open(e: AnActionEvent) {
                 val relativePath = VfsUtilCore.getRelativePath(file, remote.repo.root)
                 if (relativePath == null) {
-                    Notifications.showError(
+                    GitLabNotifications.showError(
                         project,
                         OPEN_IN_BROWSER_FILE_IS_NOT_IN_REPO,
                         "Can't open in browser",
@@ -135,7 +135,7 @@ class OpenInBrowserActionGroup : ActionGroup(
 
                 val hash = remote.repo.currentRevision
                 if (hash == null) {
-                    Notifications.showError(
+                    GitLabNotifications.showError(
                         project,
                         OPEN_IN_BROWSER_REPO_HAS_NO_HEAD,
                         "Can't open in browser",
