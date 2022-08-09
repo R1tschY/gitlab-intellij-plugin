@@ -8,9 +8,11 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.util.Disposer
+import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.dsl.gridLayout.VerticalAlign
+import de.richardliebscher.intellij.gitlab.GitlabBundle
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAccountsManager
 import de.richardliebscher.intellij.gitlab.accounts.GitLabProjectDefaultAccountHolder
 import de.richardliebscher.intellij.gitlab.accounts.ui.AccountsPanelFactory
@@ -32,12 +34,19 @@ internal class GitLabSettingsConfigurable(private val project: Project) : BoundC
         val accountsPanelFactory =
             AccountsPanelFactory(accountManager, defaultAccountHolder, accountsModel, detailsLoader, disposable!!)
 
+        val settingsState = GitLabSettings.getState()
+
         return panel {
             row {
                 accountsPanelFactory.accountsPanelCell(this, true)
                     .horizontalAlign(HorizontalAlign.FILL)
                     .verticalAlign(VerticalAlign.FILL)
             }.resizableRow()
+
+            row {
+                checkBox(GitlabBundle.message("clone.setting.ssh"))
+                    .bindSelected(settingsState::cloneUsingSsh)
+            }
         }
     }
 }

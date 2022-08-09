@@ -19,6 +19,8 @@
                 instance="de.richardliebscher.intellij.gitlab.settings.GitLabSettingsConfigurable"
                 id="de.richardliebscher.intellij.gitlab.settings.GitLabSettingsConfigurable"/>
         <applicationService
+                serviceImplementation="de.richardliebscher.intellij.gitlab.settings.GitLabAccounts"/>
+        <applicationService
                 serviceImplementation="de.richardliebscher.intellij.gitlab.settings.GitLabSettings"/>
 
         <projectService

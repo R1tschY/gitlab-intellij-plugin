@@ -52,8 +52,8 @@ import de.richardliebscher.intellij.gitlab.exceptions.MissingAccessTokenExceptio
 import de.richardliebscher.intellij.gitlab.exceptions.UnauthorizedAccessException
 import de.richardliebscher.intellij.gitlab.model.GitLabProjectCoord
 import de.richardliebscher.intellij.gitlab.model.GitLabProjectPath
-import de.richardliebscher.intellij.gitlab.model.GitProtocol
 import de.richardliebscher.intellij.gitlab.model.SERVICE_DISPLAY_NAME
+import de.richardliebscher.intellij.gitlab.settings.GitLabSettings
 import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications
 import de.richardliebscher.intellij.gitlab.utils.Model
 import de.richardliebscher.intellij.gitlab.utils.toPredicate
@@ -98,6 +98,8 @@ class GitlabCloneDialogExtension : VcsCloneDialogExtension {
 internal class GitlabCloneDialogExtensionComponent(
     private val project: Project
 ) : VcsCloneDialogExtensionComponent() {
+
+    private val settings = GitLabSettings.getState()
 
     private val projectsModel: SimpleListModel<GitLabRepositoryUrls> = SimpleListModel()
     private val accountsModel: SortedAccountsListModel =
@@ -259,10 +261,9 @@ internal class GitlabCloneDialogExtensionComponent(
     private fun updateSelectedProject() {
         val selectedValue = projectsListView.selectedValue
         selectedCloneUrl = selectedValue?.let {
-            // TODO: eval clone strategy setting
-            it.httpsUrl
+            if (settings.cloneUsingSsh) { it.sshUrl } else { it.httpsUrl }
                 ?: GitLabProjectCoord(selectedAccount!!.server, GitLabProjectPath(it.id))
-                    .guessCloneUrl(GitProtocol.HTTPS)
+                    .guessCloneUrl(settings.getPreferredGitProtocol())
         }
     }
 

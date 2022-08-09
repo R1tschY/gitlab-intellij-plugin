@@ -24,9 +24,9 @@ const val SERVICE_DISPLAY_NAME: String = "GitLab"
 @Tag("server")
 data class GitLabServerUrl(
     @Attribute("https")
-    val https: Boolean,
+    val https: Boolean = true,
     @Attribute("host")
-    val host: String,
+    val host: String = DEFAULT_HOST,
     @Attribute("port")
     val port: Int = defaultPort(https)
 ) : ServerPath {

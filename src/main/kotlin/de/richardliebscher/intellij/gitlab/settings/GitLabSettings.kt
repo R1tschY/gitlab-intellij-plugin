@@ -1,41 +1,39 @@
-// Copyright 2022 Richard Liebscher.
-// Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.settings
 
-import com.intellij.collaboration.auth.AccountsRepository
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
-import com.intellij.util.xmlb.XmlSerializerUtil
-import com.intellij.util.xmlb.annotations.Tag
-import de.richardliebscher.intellij.gitlab.accounts.GitLabAccount
-
+import com.intellij.openapi.components.*
+import de.richardliebscher.intellij.gitlab.model.GitProtocol
 
 @State(
     name = "de.richardliebscher.intellij.gitlab.GitLabSettings",
-    storages = [Storage("gitlab-repositories.xml")]
+    storages = [Storage("gitlab-repositories.xml")],
+    category = SettingsCategory.TOOLS,
+    reportStatistic = false
 )
-class GitLabSettings : AccountsRepository<GitLabAccount>, PersistentStateComponent<GitLabSettingsState> {
+class GitLabSettings : PersistentStateComponentWithModificationTracker<GitLabSettingsState> {
 
     private var state = GitLabSettingsState()
 
-    override var accounts: Set<GitLabAccount>
-        get() = state.accounts.toSet()
-        set(value) {
-            state.accounts = value.toList()
-        }
-
-    fun hasAccounts(): Boolean = state.accounts.isNotEmpty()
-
     override fun getState(): GitLabSettingsState = state
 
+    override fun getStateModificationCount(): Long = state.modificationCount
+
     override fun loadState(state: GitLabSettingsState) {
-        XmlSerializerUtil.copyBean(state, this.state)
+        this.state = state
+    }
+
+    companion object {
+        fun getState() = service<GitLabSettings>().state
     }
 }
 
-class GitLabSettingsState {
-    @Tag("account")
-    @Volatile
-    var accounts = emptyList<GitLabAccount>()
+class GitLabSettingsState : BaseState() {
+    var cloneUsingSsh by property(false)
+
+    fun getPreferredGitProtocol(): GitProtocol {
+        return if (cloneUsingSsh) {
+            GitProtocol.SSH
+        } else {
+            GitProtocol.HTTPS
+        }
+    }
 }

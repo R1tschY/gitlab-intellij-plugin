@@ -7,11 +7,11 @@ import com.intellij.collaboration.auth.AccountsRepository
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import de.richardliebscher.intellij.gitlab.model.SERVICE_DISPLAY_NAME
-import de.richardliebscher.intellij.gitlab.settings.GitLabSettings
+import de.richardliebscher.intellij.gitlab.settings.GitLabAccounts
 
 @Service
 internal class GitLabAccountsManager : AccountManagerBase<GitLabAccount, GitlabAccessToken>(SERVICE_DISPLAY_NAME) {
-    override fun accountsRepository(): AccountsRepository<GitLabAccount> = service<GitLabSettings>()
+    override fun accountsRepository(): AccountsRepository<GitLabAccount> = service<GitLabAccounts>()
 
     override fun deserializeCredentials(credentials: String): GitlabAccessToken {
         return GitlabAccessToken(credentials)
