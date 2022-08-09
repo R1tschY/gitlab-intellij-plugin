@@ -100,8 +100,9 @@ graphql {
 
 tasks {
     withType<KotlinCompile> {
-        kotlinOptions.languageVersion = "1.6"
+        kotlinOptions.languageVersion = "1.7"
         kotlinOptions.apiVersion = "1.5"
+        kotlinOptions.jvmTarget = "11"
     }
 
     test {
