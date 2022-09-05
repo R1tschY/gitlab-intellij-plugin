@@ -27,8 +27,6 @@
                 serviceImplementation="de.richardliebscher.intellij.gitlab.repository.GitlabProtectedBranchCache"/>
 
         <!-- Merge Request -->
-        <toolWindow id="GitLab Merge Requests" secondary="true" icon="AllIcons.General.Modified" anchor="bottom"
-                    factoryClass="de.richardliebscher.intellij.gitlab.ui.MergeRequestsToolWindowFactory"/>
         <statusBarWidgetFactory
                 id="de.richardliebscher.intellij.gitlab.mergerequests"
                 implementation="de.richardliebscher.intellij.gitlab.mergerequests.CurrentMergeRequestsWidget$Factory"

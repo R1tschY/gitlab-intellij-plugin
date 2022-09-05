@@ -2,7 +2,7 @@ package de.richardliebscher.intellij.gitlab.mergerequests
 
 import com.intellij.dvcs.DvcsUtil
 import com.intellij.ide.BrowserUtil
-import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -26,11 +26,11 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     private val mrService = project.service<CurrentMergeRequestsService>()
 
     init {
-        update()
+        updateLater()
 
         mrService.subscribeChanges(this, object : CurrentMergeRequestsChangesListener {
             override fun onCurrentMergeRequestsChanged(remotes: List<MergeRequestWorkingCopy>) {
-                invokeLater { update() }
+                updateLater()
             }
         })
     }
@@ -60,6 +60,14 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
 
     override fun getPresentation(): StatusBarWidget.WidgetPresentation {
         return this
+    }
+
+    private fun updateLater() {
+        if (isDisposed) {
+            return
+        }
+
+        ApplicationManager.getApplication().invokeLater(::update, project.disposed)
     }
 
     private fun update() {

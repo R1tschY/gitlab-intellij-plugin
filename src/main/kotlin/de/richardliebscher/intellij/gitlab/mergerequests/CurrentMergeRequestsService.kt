@@ -18,6 +18,7 @@ import de.richardliebscher.intellij.gitlab.services.GitlabRemoteChangesListener
 import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications
 import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications.FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH
 import git4idea.repo.GitRepository
+import git4idea.repo.GitRepositoryChangeListener
 import org.jetbrains.annotations.CalledInAny
 import java.io.IOException
 import java.util.stream.Collectors.toList
@@ -31,6 +32,8 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
     private var currentMergeRequests: List<MergeRequestWorkingCopy> = listOf()
 
     init {
+        project.messageBus.connect(this)
+            .subscribe(GitRepository.GIT_REPO_CHANGE, GitRepositoryChangeListener { updateCurrentMergeRequests() })
         project.service<GitLabRemotesManager>()
             .subscribeRemotesChanges(this, object : GitlabRemoteChangesListener {
                 override fun onRemotesChanged(remotes: List<GitLabRemote>) {
@@ -65,6 +68,7 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
                     val remoteBranchName = branchTrackInfo.remoteBranch.nameForRemoteOperations
 
                     // TODO: notify when token is missing
+                    // TODO: check if something really changed
                     LOG.info("Searching for merge requests for ${currentBranch.name} on ${remote.projectCoord.server} ...")
                     var mergeRequests: List<MergeRequest>?
                     try {
