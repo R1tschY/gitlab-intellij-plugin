@@ -82,11 +82,17 @@
             <add-to-group group-id="Git.Menu"/>
         </action>
 
+        <action id="de.richardliebscher.intellij.gitlab.actions.RefreshMergeRequestsAction"
+                class="de.richardliebscher.intellij.gitlab.actions.RefreshMergeRequestsAction">
+            <add-to-group group-id="Git.Menu"/>
+        </action>
+
         <group id="de.richardliebscher.intellij.gitlab" text="GitLab" popup="true">
             <add-to-group group-id="Git.MainMenu" anchor="before" relative-to-action="Git.Configure.Remotes"/>
 
             <reference ref="de.richardliebscher.intellij.gitlab.actions.OpenInBrowserAction"/>
             <reference ref="de.richardliebscher.intellij.gitlab.actions.CreateMergeRequestAction"/>
+            <reference ref="de.richardliebscher.intellij.gitlab.actions.RefreshMergeRequestsAction"/>
         </group>
     </actions>
 
