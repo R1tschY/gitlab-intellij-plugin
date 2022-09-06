@@ -1,5 +1,7 @@
 package de.richardliebscher.intellij.gitlab.mergerequests
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -12,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.messages.Topic
 import de.richardliebscher.intellij.gitlab.api.GitLabApiService
+import de.richardliebscher.intellij.gitlab.model.GitLabProjectCoord
 import de.richardliebscher.intellij.gitlab.model.GitLabRemote
 import de.richardliebscher.intellij.gitlab.services.GitLabRemotesManager
 import de.richardliebscher.intellij.gitlab.services.GitlabRemoteChangesListener
@@ -21,6 +24,7 @@ import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryChangeListener
 import org.jetbrains.annotations.CalledInAny
 import java.io.IOException
+import java.time.Duration
 import java.util.stream.Collectors.toList
 
 data class MergeRequestWorkingCopy(val repoRoot: VirtualFile, val mr: MergeRequest)
@@ -30,6 +34,11 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
 
     @Volatile
     private var currentMergeRequests: List<MergeRequestWorkingCopy> = listOf()
+
+    private var cache: Cache<CacheKey, List<MergeRequest>> = Caffeine.newBuilder()
+        .maximumSize(1024)
+        .expireAfterAccess(Duration.ofMinutes(15))
+        .build()
 
     init {
         project.messageBus.connect(this)
@@ -57,8 +66,6 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
     private fun fetchCurrentMergeRequests(progressIndicator: ProgressIndicator): List<MergeRequestWorkingCopy> {
         LOG.info("Detecting merge requests for current branches")
         val remotesManager: GitLabRemotesManager = project.service()
-        val apiService: GitLabApiService = service()
-
         val result: MutableList<MergeRequestWorkingCopy> = mutableListOf()
         for (remote in remotesManager.remotes) {
             val currentBranch = remote.repo.currentBranch
@@ -66,28 +73,8 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
                 val branchTrackInfo = remote.repo.getBranchTrackInfo(currentBranch.name)
                 if (branchTrackInfo != null && branchTrackInfo.remote == remote.remote) {
                     val remoteBranchName = branchTrackInfo.remoteBranch.nameForRemoteOperations
-
-                    // TODO: notify when token is missing
-                    // TODO: check if something really changed
-                    LOG.info("Searching for merge requests for ${currentBranch.name} on ${remote.projectCoord.server} ...")
-                    var mergeRequests: List<MergeRequest>?
-                    try {
-                        mergeRequests = apiService.apiFor(remote.projectCoord.server)
-                            ?.findMergeRequestsUsingSourceBranch(
-                                remote.projectCoord.projectPath,
-                                remoteBranchName,
-                                progressIndicator
-                            )
-                    } catch (e: IOException) {
-                        GitLabNotifications.showError(
-                            project,
-                            FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH,
-                            "Failed getting merge requests",
-                            "Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e"
-                        )
-                        LOG.error("Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e")
-                        mergeRequests = null
-                    }
+                    val mergeRequests: List<MergeRequest>? =
+                        getMergeRequests(remote, remoteBranchName, progressIndicator)
 
                     if (!mergeRequests.isNullOrEmpty()) {
                         LOG.info("Found merge requests for ${currentBranch.name} on ${remote.projectCoord.server}: $mergeRequests")
@@ -102,7 +89,46 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
         return result
     }
 
-    private fun updateCurrentMergeRequests() {
+    private fun getMergeRequests(
+        remote: GitLabRemote,
+        remoteBranchName: String,
+        progressIndicator: ProgressIndicator
+    ): List<MergeRequest>? {
+        val currentBranch = remote.repo.currentBranch!!
+        val apiService: GitLabApiService = service()
+
+        // TODO: notify when token is missing
+        // TODO: check if something really changed
+        LOG.info("Searching for merge requests for ${currentBranch.name} on ${remote.projectCoord.server} ...")
+        try {
+            return cache.get(CacheKey(remote.projectCoord, remoteBranchName)) { it ->
+                apiService.apiFor(it.projectCoord.server)
+                    ?.findMergeRequestsUsingSourceBranch(
+                        it.projectCoord.projectPath,
+                        it.remoteBranchName,
+                        progressIndicator
+                    )
+            }
+        } catch (e: IOException) {
+            GitLabNotifications.showError(
+                project,
+                FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH,
+                "Failed getting merge requests",
+                "Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e"
+            )
+            LOG.error("Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e")
+            return null
+        }
+    }
+
+    @CalledInAny
+    fun refresh() {
+        cache.invalidateAll()
+        updateCurrentMergeRequests()
+    }
+
+    @CalledInAny
+    fun updateCurrentMergeRequests() {
         object : Task.Backgroundable(project, "Detecting GitLab merge requests") {
             override fun run(indicator: ProgressIndicator) {
                 val currentMergeRequests = fetchCurrentMergeRequests(indicator)
@@ -134,6 +160,8 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
         private val LOG = logger<GitLabRemotesManager>()
     }
 }
+
+private data class CacheKey(val projectCoord: GitLabProjectCoord, val remoteBranchName: String)
 
 interface CurrentMergeRequestsChangesListener {
     fun onCurrentMergeRequestsChanged(remotes: List<MergeRequestWorkingCopy>)
