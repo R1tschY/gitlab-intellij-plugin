@@ -2,6 +2,8 @@ package de.richardliebscher.intellij.gitlab.mergerequests
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.intellij.dvcs.repo.VcsRepositoryManager
+import com.intellij.dvcs.repo.VcsRepositoryMappingListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -42,14 +44,21 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
         .build()
 
     init {
-        project.messageBus.connect(this)
-            .subscribe(GitRepository.GIT_REPO_CHANGE, GitRepositoryChangeListener { updateCurrentMergeRequests() })
-        project.service<GitLabRemotesManager>()
-            .subscribeRemotesChanges(this, object : GitlabRemoteChangesListener {
-                override fun onRemotesChanged(remotes: List<GitLabRemote>) {
-                    updateCurrentMergeRequests()
-                }
-            })
+        val connection = project.messageBus.connect(this)
+        connection.subscribe(GitRepository.GIT_REPO_CHANGE, GitRepositoryChangeListener {
+            LOG.debug("repository changed")
+            updateCurrentMergeRequests()
+        })
+        connection.subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, VcsRepositoryMappingListener {
+            LOG.debug("repository mappings changed")
+            updateCurrentMergeRequests()
+        })
+        connection.subscribe(GitlabRemoteChangesListener.TOPIC, object : GitlabRemoteChangesListener {
+            override fun onRemotesChanged(remotes: List<GitLabRemote>) {
+                LOG.debug("GitLab remotes changed")
+                updateCurrentMergeRequests()
+            }
+        })
     }
 
     @CalledInAny

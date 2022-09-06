@@ -24,6 +24,8 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
 
     private var mergeRequest: MergeRequest? = null
     private val mrService = project.service<CurrentMergeRequestsService>()
+    private val gitVcsSettings = GitVcsSettings.getInstance(project)
+    private val gitRepositoryManager = GitUtil.getRepositoryManager(project)
 
     init {
         updateLater()
@@ -92,10 +94,7 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     }
 
     private fun guessCurrentRepository(): GitRepository? {
-        return DvcsUtil.guessCurrentRepositoryQuick(
-            project, GitUtil.getRepositoryManager(project),
-            GitVcsSettings.getInstance(project).recentRootPath
-        )
+        return DvcsUtil.guessCurrentRepositoryQuick(project, gitRepositoryManager, gitVcsSettings.recentRootPath)
     }
 
     class Factory : StatusBarWidgetFactory {
