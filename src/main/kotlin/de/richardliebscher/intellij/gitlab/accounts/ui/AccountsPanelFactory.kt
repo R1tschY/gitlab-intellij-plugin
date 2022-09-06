@@ -14,6 +14,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonShortcuts
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.keymap.KeymapUtil
+import com.intellij.ui.ClientProperty
 import com.intellij.ui.LayeredIcon
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.ToolbarDecorator
@@ -125,7 +126,7 @@ private constructor(disposable: Disposable,
             val renderer = listCellRendererFactory()
             cellRenderer = renderer
             JListHoveredRowMaterialiser.install(this, listCellRendererFactory())
-            UIUtil.putClientProperty(this, UIUtil.NOT_IN_HIERARCHY_COMPONENTS, listOf(renderer))
+            ClientProperty.put(this, UIUtil.NOT_IN_HIERARCHY_COMPONENTS, listOf(renderer))
 
             selectionMode = ListSelectionModel.SINGLE_SELECTION
         }
