@@ -34,6 +34,7 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
 
     @Volatile
     private var currentMergeRequests: List<MergeRequestWorkingCopy> = listOf()
+    private val currentMergeRequestsWriteMutex = Object()
 
     private var cache: Cache<CacheKey, List<MergeRequest>> = Caffeine.newBuilder()
         .maximumSize(1024)
@@ -129,15 +130,21 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
 
     @CalledInAny
     fun updateCurrentMergeRequests() {
-        object : Task.Backgroundable(project, "Detecting GitLab merge requests") {
-            override fun run(indicator: ProgressIndicator) {
-                val currentMergeRequests = fetchCurrentMergeRequests(indicator)
+        synchronized(currentMergeRequestsWriteMutex) {
+            object : Task.Backgroundable(project, "Detecting GitLab merge requests") {
+                override fun run(indicator: ProgressIndicator) {
+                    synchronized(currentMergeRequestsWriteMutex) {
+                        val currentMergeRequests = fetchCurrentMergeRequests(indicator)
 
-                this@CurrentMergeRequestsService.currentMergeRequests = currentMergeRequests
-                project.messageBus.syncPublisher(CurrentMergeRequestsChangesListener.TOPIC)
-                    .onCurrentMergeRequestsChanged(currentMergeRequests)
-            }
-        }.queue()
+                        if (this@CurrentMergeRequestsService.currentMergeRequests != currentMergeRequests) {
+                            this@CurrentMergeRequestsService.currentMergeRequests = currentMergeRequests
+                            project.messageBus.syncPublisher(CurrentMergeRequestsChangesListener.TOPIC)
+                                .onCurrentMergeRequestsChanged(currentMergeRequests)
+                        }
+                    }
+                }
+            }.queue()
+        }
     }
 
     class VcsChangesListener(private val project: Project) : BranchChangeListener {
