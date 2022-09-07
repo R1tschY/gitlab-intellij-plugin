@@ -126,7 +126,7 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
                 "Failed getting merge requests",
                 "Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e"
             )
-            LOG.error("Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e")
+            LOG.warn("Failed getting merge requests for ${currentBranch.name} in ${remote.projectCoord}: $e", e)
             return null
         }
     }
