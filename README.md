@@ -4,24 +4,22 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 
-
 <!-- Plugin description -->
-*IntelliJ platform plugin for [GitLab](https://gitlab.com/) workflow integration*
- 
-Features:
+
+Provides workflow integration with [GitLab](https://gitlab.com/):
  * Open files and commits in browser
+ * Show merge request for current branch
+ * Create merge request in browser for current branch
  * Clone repositories
- * Open or create merge request for current branch
 
-To add account, open <kbd>Settings / Preferences</kbd> and go to <kbd>Version Control</kbd> > <kbd>GitLab</kbd>
-
-Requires Git plugin.
-<!-- Plugin description end -->
+Add account in <kbd>Settings / Preferences</kbd> dialog in section <kbd>Version Control</kbd> > <kbd>GitLab</kbd>.
 
 ## Why?
 
-Because all other GitLab IntelliJ plugins are paid, not free for private repositories, unmaintained or broken.
-So tacle this with Free Software :wink:
+Because most other GitLab IntelliJ plugins are paid, not free for private repositories, unmaintained or broken.
+So tacle this with Free Software ;)
+
+<!-- Plugin description end -->
 
 ## Installation
 
