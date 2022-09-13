@@ -22,6 +22,7 @@ import de.richardliebscher.intellij.gitlab.services.GitLabRemotesManager
 import de.richardliebscher.intellij.gitlab.services.GitlabRemoteChangesListener
 import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications
 import de.richardliebscher.intellij.gitlab.ui.GitLabNotifications.FAILED_GETTING_MERGE_REQUESTS_FOR_BRANCH
+import git4idea.branch.GitBranchIncomingOutgoingManager
 import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryChangeListener
 import org.jetbrains.annotations.CalledInAny
@@ -59,6 +60,11 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
                 updateCurrentMergeRequests()
             }
         })
+        connection.subscribe(GitBranchIncomingOutgoingManager.GIT_INCOMING_OUTGOING_CHANGED,
+            GitBranchIncomingOutgoingManager.GitIncomingOutgoingListener {
+                LOG.debug("repository incoming outgoing changed")
+                updateCurrentMergeRequests()
+            })
     }
 
     @CalledInAny

@@ -4,8 +4,12 @@ import com.intellij.dvcs.DvcsUtil
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidgetFactory
@@ -13,6 +17,7 @@ import com.intellij.openapi.wm.impl.status.EditorBasedWidget
 import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager
 import com.intellij.util.Consumer
 import com.intellij.util.concurrency.annotations.RequiresEdt
+import de.richardliebscher.intellij.gitlab.services.GitLabRemotesManager
 import git4idea.GitUtil
 import git4idea.config.GitVcsSettings
 import git4idea.repo.GitRepository
@@ -28,8 +33,6 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     private val gitRepositoryManager = GitUtil.getRepositoryManager(project)
 
     init {
-        updateLater()
-
         mrService.subscribeChanges(this, object : CurrentMergeRequestsChangesListener {
             override fun onCurrentMergeRequestsChanged(remotes: List<MergeRequestWorkingCopy>) {
                 updateLater()
@@ -53,7 +56,7 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     }
 
     override fun getText(): String {
-        return mergeRequest?.let { "!${it.iid.asString()}" } ?: "!???"
+        return mergeRequest?.let { "!${it.iid.asString()}" } ?: ""
     }
 
     override fun getAlignment(): Float {
@@ -62,6 +65,26 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
 
     override fun getPresentation(): StatusBarWidget.WidgetPresentation {
         return this
+    }
+
+    override fun selectionChanged(event: FileEditorManagerEvent) {
+        LOG.debug("selection changed")
+        update()
+    }
+
+    override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
+        LOG.debug("file opened")
+        update()
+    }
+
+    override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
+        LOG.debug("file closed")
+        update()
+    }
+
+    override fun install(statusBar: StatusBar) {
+        super.install(statusBar)
+        updateLater()
     }
 
     private fun updateLater() {
@@ -73,12 +96,16 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     }
 
     private fun update() {
-        val guessRepo = guessCurrentRepository()
+        if (isDisposed) {
+            return
+        }
+
+        val guessedRepo = guessCurrentRepository()
 
         val allMergeRequests = mrService.getCurrentMergeRequests()
-        val mergeRequests = guessRepo
+        val mergeRequests = guessedRepo
             ?.let { repo -> allMergeRequests.filter { repo.root == it.repoRoot } }
-            ?: allMergeRequests
+            ?: return
 
         val openMergeRequests = mergeRequests.filter { it.mr.state == MergeRequestState.OPEN }
 
@@ -125,8 +152,14 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     }
 
     class ChangesListener(private val project: Project) : CurrentMergeRequestsChangesListener {
+        private var lastState: Boolean? = null
+
         override fun onCurrentMergeRequestsChanged(remotes: List<MergeRequestWorkingCopy>) {
-            project.service<StatusBarWidgetsManager>().updateWidget(Factory::class.java)
+            val newState = remotes.isNotEmpty()
+            if (lastState != newState) {
+                lastState = newState
+                project.service<StatusBarWidgetsManager>().updateWidget(Factory::class.java)
+            }
         }
     }
 
