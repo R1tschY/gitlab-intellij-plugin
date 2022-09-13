@@ -14,7 +14,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URLConnection
 
-private const val HTTP_USER_AGENT = "GitLab Repositories IntelliJ plugin"
+private const val HTTP_USER_AGENT = "GitLab4Devs IntelliJ plugin"
 
 
 private class JavaHttpRequestBuilder(private val connection: URLConnection) : HttpRequestBuilder {

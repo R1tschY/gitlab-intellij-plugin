@@ -5,7 +5,7 @@ import de.richardliebscher.intellij.gitlab.model.GitProtocol
 
 @State(
     name = "de.richardliebscher.intellij.gitlab.GitLabSettings",
-    storages = [Storage("gitlab-repositories.xml")],
+    storages = [Storage("gitlab4devs.xml")],
     category = SettingsCategory.TOOLS,
     reportStatistic = false
 )

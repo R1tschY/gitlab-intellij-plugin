@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# GitLab Repositories Plugin Changelog
+# GitLab4Devs Plugin Changelog
 
 ## [Unreleased]
 ### Added

@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>de.richardliebscher.intellij.gitlab</id>
 
-    <name>GitLab Repositories</name>
+    <name>GitLab4Devs</name>
     <vendor url="https://github.com/R1tschY">Richard Liebscher</vendor>
 
     <depends>com.intellij.modules.platform</depends>
