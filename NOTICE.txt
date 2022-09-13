@@ -2,4 +2,5 @@ This software includes code from IntelliJ IDEA Community Edition
 Copyright (C) JetBrains s.r.o.
 https://www.jetbrains.com/idea/
 
+
 Copyright (C) Richard Liebscher
