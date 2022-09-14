@@ -16,6 +16,7 @@ import java.net.URLConnection
 import java.net.UnknownHostException
 
 private const val HTTP_USER_AGENT = "GitLab4Devs IntelliJ plugin"
+private val JSON_MIME_TYPE_RE = Regex("""^application/json\s*(?:;.*)?""")
 
 
 private class JavaHttpRequestBuilder(private val connection: URLConnection) : HttpRequestBuilder {
@@ -77,14 +78,7 @@ class IntellijHttpClient(
                 }
                 .connect {
                     val connection = it.connection as HttpURLConnection
-                    // TODO check content type
-                    if (connection.responseCode >= 400) {
-                        throw HttpStatusCodeException(
-                            "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
-                            connection.responseCode
-                        )
-                    }
-
+                    checkResponse(connection)
                     request.readContent(IntellijHttpResponse(it, progressIndicator))
                 }
         } catch (exp: UnknownHostException) {
@@ -134,21 +128,29 @@ class IntellijHttpClient(
                 .connect {
                     val connection = it.connection as HttpURLConnection
                     it.write(serializer.serialize(request))
-
-                    // TODO check content type
-                    if (connection.responseCode >= 400) {
-                        throw HttpStatusCodeException(
-                            "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
-                            connection.responseCode
-                        )
-                    }
-
+                    checkResponse(connection)
                     it.readString()
                 }
 
             return serializer.deserialize(rawResult, request.responseType())
         } catch (exp: UnknownHostException) {
             throw IOException("Unknown host: " + exp.message, exp)
+        }
+    }
+
+    private fun checkResponse(connection: HttpURLConnection) {
+        if (connection.responseCode >= 400) {
+            throw HttpStatusCodeException(
+                "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
+                connection.responseCode
+            )
+        }
+
+        val contentType: String? = connection.contentType
+        if (contentType != null && !contentType.matches(JSON_MIME_TYPE_RE)) {
+            throw IOException(
+                "Unexpected content type: Expected $JSON_MIME_TYPE, got ${connection.contentType}"
+            )
         }
     }
 }

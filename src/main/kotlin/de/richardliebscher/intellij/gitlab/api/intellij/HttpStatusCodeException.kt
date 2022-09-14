@@ -11,5 +11,5 @@ class HttpStatusCodeException : IOException {
         this.statusCode = statusCode
     }
 
-    val statusCode: Int
+    private val statusCode: Int
 }
