@@ -13,6 +13,7 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URLConnection
+import java.net.UnknownHostException
 
 private const val HTTP_USER_AGENT = "GitLab4Devs IntelliJ plugin"
 
@@ -66,25 +67,29 @@ class IntellijHttpClient(
     ): T {
         assertSlowOperationsAreAllowed()
 
-        return HttpRequests.request(uri.resolve(request.location).toString())
-            .userAgent(HTTP_USER_AGENT)
-            .tuner { connection ->
-                val httpRequest = JavaHttpRequestBuilder(connection)
-                sessionCustomizers.forEach { it.customize(httpRequest) }
-                requestCustomizer.customize(httpRequest)
-            }
-            .connect {
-                val connection = it.connection as HttpURLConnection
-                // TODO check content type
-                if (connection.responseCode >= 400) {
-                    throw HttpStatusCodeException(
-                        "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
-                        connection.responseCode
-                    )
+        try {
+            return HttpRequests.request(uri.resolve(request.location).toString())
+                .userAgent(HTTP_USER_AGENT)
+                .tuner { connection ->
+                    val httpRequest = JavaHttpRequestBuilder(connection)
+                    sessionCustomizers.forEach { it.customize(httpRequest) }
+                    requestCustomizer.customize(httpRequest)
                 }
+                .connect {
+                    val connection = it.connection as HttpURLConnection
+                    // TODO check content type
+                    if (connection.responseCode >= 400) {
+                        throw HttpStatusCodeException(
+                            "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
+                            connection.responseCode
+                        )
+                    }
 
-                request.readContent(IntellijHttpResponse(it, progressIndicator))
-            }
+                    request.readContent(IntellijHttpResponse(it, progressIndicator))
+                }
+        } catch (exp: UnknownHostException) {
+            throw IOException("Unknown host: " + exp.message, exp)
+        }
     }
 
     @Throws(IOException::class)
@@ -115,31 +120,36 @@ class IntellijHttpClient(
         requestCustomizer: HttpRequestCustomizer
     ): GraphQLClientResponse<T> {
         assertSlowOperationsAreAllowed()
-        val rawResult: String = HttpRequests.post("$url/api/graphql", JSON_MIME_TYPE)
-            .userAgent(HTTP_USER_AGENT)
-            .tuner { connection ->
-                connection.setRequestProperty("Accept", JSON_MIME_TYPE)
 
-                val httpRequest = JavaHttpRequestBuilder(connection)
-                sessionCustomizers.forEach { it.customize(httpRequest) }
-                requestCustomizer.customize(httpRequest)
-            }
-            .connect {
-                val connection = it.connection as HttpURLConnection
-                it.write(serializer.serialize(request))
+        try {
+            val rawResult: String = HttpRequests.post("$url/api/graphql", JSON_MIME_TYPE)
+                .userAgent(HTTP_USER_AGENT)
+                .tuner { connection ->
+                    connection.setRequestProperty("Accept", JSON_MIME_TYPE)
 
-                // TODO check content type
-                if (connection.responseCode >= 400) {
-                    throw HttpStatusCodeException(
-                        "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
-                        connection.responseCode
-                    )
+                    val httpRequest = JavaHttpRequestBuilder(connection)
+                    sessionCustomizers.forEach { it.customize(httpRequest) }
+                    requestCustomizer.customize(httpRequest)
+                }
+                .connect {
+                    val connection = it.connection as HttpURLConnection
+                    it.write(serializer.serialize(request))
+
+                    // TODO check content type
+                    if (connection.responseCode >= 400) {
+                        throw HttpStatusCodeException(
+                            "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
+                            connection.responseCode
+                        )
+                    }
+
+                    it.readString()
                 }
 
-                it.readString()
-            }
-
-        return serializer.deserialize(rawResult, request.responseType())
+            return serializer.deserialize(rawResult, request.responseType())
+        } catch (exp: UnknownHostException) {
+            throw IOException("Unknown host: " + exp.message, exp)
+        }
     }
 }
 
