@@ -105,11 +105,11 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
         val allMergeRequests = mrService.getCurrentMergeRequests()
         val mergeRequests = guessedRepo
             ?.let { repo -> allMergeRequests.filter { repo.root == it.repoRoot } }
-            ?: return
+            ?: listOf()
 
         val openMergeRequests = mergeRequests.filter { it.mr.state == MergeRequestState.OPEN }
 
-        mergeRequest = if (openMergeRequests.isNotEmpty()) {
+        val newMergeRequest = if (openMergeRequests.isNotEmpty()) {
             // TODO: use newest
             openMergeRequests[0].mr
         } else if (mergeRequests.isNotEmpty()) {
@@ -117,6 +117,13 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
             mergeRequests[0].mr
         } else {
             null
+        }
+
+        if (mergeRequest != newMergeRequest) {
+            mergeRequest = newMergeRequest
+            if (myStatusBar != null) {
+                myStatusBar.updateWidget(ID())
+            }
         }
     }
 
