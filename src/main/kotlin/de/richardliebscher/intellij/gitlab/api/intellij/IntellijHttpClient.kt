@@ -78,7 +78,7 @@ class IntellijHttpClient(
                 }
                 .connect {
                     val connection = it.connection as HttpURLConnection
-                    checkResponse(connection)
+                    checkStatusCode(connection)
                     request.readContent(IntellijHttpResponse(it, progressIndicator))
                 }
         } catch (exp: UnknownHostException) {
@@ -99,6 +99,11 @@ class IntellijHttpClient(
                     get() = request.location
 
                 override fun readContent(response: HttpResponse): T {
+                    val contentType: String? = response.getHeader("Content-Type")
+                    if (contentType != null && !contentType.matches(JSON_MIME_TYPE_RE)) {
+                        throw IOException("Unexpected content type: Expected $JSON_MIME_TYPE, got $contentType")
+                    }
+
                     return request.deserialize(response.readBodyToString(), restSerializer)
                 }
             },
@@ -128,7 +133,15 @@ class IntellijHttpClient(
                 .connect {
                     val connection = it.connection as HttpURLConnection
                     it.write(serializer.serialize(request))
-                    checkResponse(connection)
+                    checkStatusCode(connection)
+
+                    val contentType: String? = connection.contentType
+                    if (contentType != null && !contentType.matches(JSON_MIME_TYPE_RE)) {
+                        throw IOException(
+                            "Unexpected content type: Expected $JSON_MIME_TYPE, got ${connection.contentType}"
+                        )
+                    }
+
                     it.readString()
                 }
 
@@ -138,18 +151,11 @@ class IntellijHttpClient(
         }
     }
 
-    private fun checkResponse(connection: HttpURLConnection) {
+    private fun checkStatusCode(connection: HttpURLConnection) {
         if (connection.responseCode >= 400) {
             throw HttpStatusCodeException(
                 "HTTP request failed with ${connection.responseCode} ${connection.responseMessage}",
                 connection.responseCode
-            )
-        }
-
-        val contentType: String? = connection.contentType
-        if (contentType != null && !contentType.matches(JSON_MIME_TYPE_RE)) {
-            throw IOException(
-                "Unexpected content type: Expected $JSON_MIME_TYPE, got ${connection.contentType}"
             )
         }
     }
