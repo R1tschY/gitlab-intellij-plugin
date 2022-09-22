@@ -56,7 +56,7 @@ dependencies {
     }
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
 }
 
 // Set the JVM language level used to compile sources and generate files - Java 11 is required since 2020.3
