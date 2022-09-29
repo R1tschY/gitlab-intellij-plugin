@@ -19,7 +19,7 @@ plugins {
     id("org.jetbrains.qodana") version "0.1.13"
 
     // kotlinx.serialization
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.20"
 
     // GraphQL query objects generator
     id("com.expediagroup.graphql") version "6.2.5"
