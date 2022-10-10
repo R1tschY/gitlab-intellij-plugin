@@ -39,9 +39,9 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
     private var currentMergeRequests: List<MergeRequestWorkingCopy> = listOf()
     private val currentMergeRequestsWriteMutex = Object()
 
-    private var cache: Cache<CacheKey, List<MergeRequest>> = Caffeine.newBuilder()
+    private val cache: Cache<CacheKey, List<MergeRequest>> = Caffeine.newBuilder()
         .maximumSize(1024)
-        .expireAfterAccess(Duration.ofMinutes(15))
+        .expireAfterWrite(Duration.ofMinutes(15))
         .build()
 
     init {
