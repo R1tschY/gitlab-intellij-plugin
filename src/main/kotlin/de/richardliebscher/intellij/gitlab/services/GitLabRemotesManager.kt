@@ -54,7 +54,7 @@ class GitLabRemotesManager(private val project: Project) {
     }
 
     fun getRemoteFor(remote: GitRemote): GitLabRemote? {
-        return remotes.find { it.remote == remote }
+        return remotes.find { it.remoteName == remote.name }
     }
 
     private fun updateRepositories() {

@@ -15,7 +15,7 @@ val SSH_REMOTE_URL_REGEX: Pattern = Pattern.compile("git@([^:]+):(.*).git")
 
 
 data class GitLabRemote(
-    val repo: GitRepository, val remote: GitRemote, val remoteUrl: String, val projectCoord: GitLabProjectCoord
+    val repo: GitRepository, val remoteName: String, val remoteUrl: String, val projectCoord: GitLabProjectCoord
 )
 
 
@@ -40,7 +40,7 @@ object GitLabService {
 
     fun getMatchingRemote(repo: GitRepository, remote: GitRemote, instance: GitLabServerUrl): GitLabRemote? {
         for (url in remote.urls) {
-            getProjectFromUrl(url, instance)?.let { return GitLabRemote(repo, remote, url, it) }
+            getProjectFromUrl(url, instance)?.let { return GitLabRemote(repo, remote.name, url, it) }
         }
         return null
     }

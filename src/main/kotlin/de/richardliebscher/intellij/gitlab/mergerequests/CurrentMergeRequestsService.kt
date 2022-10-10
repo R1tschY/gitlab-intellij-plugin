@@ -84,10 +84,11 @@ class CurrentMergeRequestsService(private val project: Project) : Disposable {
         val remotesManager: GitLabRemotesManager = project.service()
         val result: MutableList<MergeRequestWorkingCopy> = mutableListOf()
         for (remote in remotesManager.remotes) {
+            LOG.info("Tying GitLab remote ${remote.projectCoord}")
             val currentBranch = remote.repo.currentBranch
             if (currentBranch != null) {
                 val branchTrackInfo = remote.repo.getBranchTrackInfo(currentBranch.name)
-                if (branchTrackInfo != null && branchTrackInfo.remote == remote.remote) {
+                if (branchTrackInfo != null && branchTrackInfo.remote.name == remote.remoteName) {
                     val remoteBranchName = branchTrackInfo.remoteBranch.nameForRemoteOperations
                     val mergeRequests: List<MergeRequest>? =
                         getMergeRequests(remote, remoteBranchName, progressIndicator)
