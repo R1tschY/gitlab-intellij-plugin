@@ -27,6 +27,7 @@ import java.awt.event.MouseEvent
 
 class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project), StatusBarWidget.TextPresentation {
 
+    @Volatile
     private var mergeRequest: MergeRequest? = null
     private val mrService = project.service<CurrentMergeRequestsService>()
     private val gitVcsSettings = GitVcsSettings.getInstance(project)
@@ -159,6 +160,7 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     }
 
     class ChangesListener(private val project: Project) : CurrentMergeRequestsChangesListener {
+        @Volatile
         private var lastState: Boolean? = null
 
         override fun onCurrentMergeRequestsChanged(remotes: List<MergeRequestWorkingCopy>) {

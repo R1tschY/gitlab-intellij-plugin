@@ -11,6 +11,7 @@ import de.richardliebscher.intellij.gitlab.model.GitProtocol
 )
 class GitLabSettings : PersistentStateComponentWithModificationTracker<GitLabSettingsState> {
 
+    @Volatile
     private var state = GitLabSettingsState()
 
     override fun getState(): GitLabSettingsState = state

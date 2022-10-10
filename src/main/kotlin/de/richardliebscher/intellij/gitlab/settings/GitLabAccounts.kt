@@ -20,6 +20,7 @@ import de.richardliebscher.intellij.gitlab.accounts.GitLabAccount
 )
 class GitLabAccounts : AccountsRepository<GitLabAccount>, PersistentStateComponent<GitLabAccountsState> {
 
+    @Volatile
     private var state = GitLabAccountsState()
 
     override var accounts: Set<GitLabAccount>

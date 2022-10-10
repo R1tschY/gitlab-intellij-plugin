@@ -39,6 +39,7 @@ class GitlabProtectedBranchProvider : GitProtectedBranchProvider {
 internal class GitlabProtectedBranchCache :
     PersistentStateComponentWithModificationTracker<GitlabProtectedBranchCache.State> {
 
+    @Volatile
     private var state: State = State()
 
     class State : BaseState() {
