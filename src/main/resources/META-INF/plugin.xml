@@ -30,7 +30,7 @@
         <statusBarWidgetFactory
                 id="de.richardliebscher.intellij.gitlab.mergerequests"
                 implementation="de.richardliebscher.intellij.gitlab.mergerequests.CurrentMergeRequestsWidget$Factory"
-                order="before gitWidget"/>
+                order="after codeStyleWidget,before gitWidget"/>
 
         <!-- Repository -->
         <openapi.vcs.ui.cloneDialog.VcsCloneDialogExtension
