@@ -6,6 +6,7 @@ package de.richardliebscher.intellij.gitlab.actions
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.components.service
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.VcsDataKeys
 import com.intellij.openapi.vcs.annotate.AnnotationGutterActionProvider
@@ -84,7 +85,11 @@ abstract class AbstractOpenInBrowserAction : ActionGroup(
     "Open on GitLab",
     "Open item in browser",
     GitLabIcons.GITLAB
-) {
+), DumbAware {
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
+    }
+
     override fun actionPerformed(e: AnActionEvent) {
         getTargets(e.dataContext)?.let { Action(it.first()).actionPerformed(e) }
     }
@@ -108,7 +113,7 @@ abstract class AbstractOpenInBrowserAction : ActionGroup(
     internal abstract fun getTargets(ctx: DataContext): List<Target>?
 
     companion object {
-        private class Action(val target: Target) : AnAction({ target.getName() }) {
+        private class Action(val target: Target) : AnAction({ target.getName() }), DumbAware {
             override fun actionPerformed(e: AnActionEvent) {
                 target.open(e)
             }
@@ -187,6 +192,10 @@ class OpenInBrowserFromAnnotationAction(private val annotation: FileAnnotation)
 
     override fun consume(integer: Int) {
         myLineNumber = integer
+    }
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
     }
 
     override fun getTargets(ctx: DataContext): List<Target>? {
