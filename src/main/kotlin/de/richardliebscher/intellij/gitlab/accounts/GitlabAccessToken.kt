@@ -29,7 +29,7 @@ fun buildNewTokenUrl(server: GitLabServerUrl): String {
         path = "/-/profile/personal_access_tokens",
         parameters = mapOf(
             "scopes" to Strings.join(REQUIRED_SCOPES, ","),
-            "name" to "GitLab4Devs $productName plugin",
+            "name" to "GitLab Repositories $productName plugin",
         )
     ).toString()
 }

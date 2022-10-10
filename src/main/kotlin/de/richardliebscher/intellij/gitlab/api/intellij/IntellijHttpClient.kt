@@ -15,7 +15,7 @@ import java.net.URI
 import java.net.URLConnection
 import java.net.UnknownHostException
 
-private const val HTTP_USER_AGENT = "GitLab4Devs IntelliJ plugin"
+private const val HTTP_USER_AGENT = "GitLab Repositories IntelliJ plugin"
 private val JSON_MIME_TYPE_RE = Regex("""^application/json\s*(?:;.*)?""")
 
 

@@ -1,1 +1,1 @@
-rootProject.name = "GitLab4Devs"
+rootProject.name = "GitLab Repositories"

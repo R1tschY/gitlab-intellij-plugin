@@ -173,7 +173,7 @@ class CurrentMergeRequestsWidget(project: Project) : EditorBasedWidget(project),
     }
 
     companion object {
-        const val WIDGET_ID: String = "gitlab4devs-mr"
+        const val WIDGET_ID: String = "gitlab-repos-mr"
 
         private val LOG = logger<GitLabRemotesManager>()
     }

@@ -14,7 +14,7 @@ import de.richardliebscher.intellij.gitlab.accounts.GitLabAccount
 
 @State(
     name = "de.richardliebscher.intellij.gitlab.GitLabAccounts",
-    storages = [Storage("gitlab4devs.xml")],
+    storages = [Storage("gitlab-repositories.xml")],
     category = SettingsCategory.TOOLS,
     reportStatistic = false
 )
