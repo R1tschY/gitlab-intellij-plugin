@@ -11,9 +11,9 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.7.10"
+    id("org.jetbrains.kotlin.jvm") version "1.7.22"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij") version "1.10.0"
+    id("org.jetbrains.intellij") version "1.11.0"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "2.0.0"
     // Gradle Qodana Plugin
@@ -22,7 +22,7 @@ plugins {
     id("org.jetbrains.kotlinx.kover") version "0.6.1"
 
     // kotlinx.serialization
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.22"
 
     // GraphQL query objects generator
     id("com.expediagroup.graphql") version "6.3.0"
@@ -62,10 +62,10 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
 }
 
-// Set the JVM language level used to compile sources and generate files - Java 11 is required since 2020.3
+// Set the JVM language level used to compile sources and generate files - Java 17 is required since 2022.3
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -111,7 +111,7 @@ tasks {
     withType<KotlinCompile> {
         kotlinOptions.languageVersion = "1.7"
         kotlinOptions.apiVersion = "1.5"
-        kotlinOptions.jvmTarget = "11"
+        kotlinOptions.jvmTarget = "17"
     }
 
     test {
