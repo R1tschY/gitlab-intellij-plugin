@@ -5,7 +5,6 @@
 
 package de.richardliebscher.intellij.gitlab.repository
 
-import com.intellij.collaboration.auth.AccountsListener
 import com.intellij.dvcs.repo.ClonePathProvider
 import com.intellij.dvcs.ui.CloneDvcsValidationUtils
 import com.intellij.dvcs.ui.FilePathDocumentChildPathHandle
@@ -43,6 +42,7 @@ import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.UIUtil
 import de.richardliebscher.intellij.gitlab.GitLabIcons
 import de.richardliebscher.intellij.gitlab.GitlabBundle
+import de.richardliebscher.intellij.gitlab.accounts.AccountsListener
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAccount
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAccountsManager
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAuthService

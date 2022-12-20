@@ -1,7 +1,5 @@
 package de.richardliebscher.intellij.gitlab.accounts
 
-import com.intellij.collaboration.async.CompletableFutureUtil
-import com.intellij.collaboration.async.CompletableFutureUtil.submitIOTask
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProgressIndicator
@@ -9,6 +7,8 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.ImageLoader
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import de.richardliebscher.intellij.gitlab.api.GitLabApi
+import de.richardliebscher.intellij.gitlab.utils.CompletableFutureUtil
+import de.richardliebscher.intellij.gitlab.utils.CompletableFutureUtil.submitIOTask
 import org.jetbrains.annotations.CalledInAny
 import java.awt.Image
 import java.util.concurrent.CompletableFuture

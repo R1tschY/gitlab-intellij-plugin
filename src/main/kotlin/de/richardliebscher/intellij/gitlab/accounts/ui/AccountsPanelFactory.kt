@@ -1,13 +1,6 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.accounts.ui
 
-import com.intellij.collaboration.async.CompletableFutureUtil.handleOnEdt
-import com.intellij.collaboration.auth.Account
-import com.intellij.collaboration.auth.AccountManager
-import com.intellij.collaboration.auth.AccountsListener
-import com.intellij.collaboration.auth.PersistentDefaultAccountHolder
-import com.intellij.collaboration.messages.CollaborationToolsBundle
-import com.intellij.collaboration.ui.util.JListHoveredRowMaterialiser
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -25,6 +18,12 @@ import com.intellij.ui.dsl.builder.Row
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.ui.StatusText
 import com.intellij.util.ui.UIUtil
+import de.richardliebscher.intellij.gitlab.GitlabBundle
+import de.richardliebscher.intellij.gitlab.accounts.Account
+import de.richardliebscher.intellij.gitlab.accounts.AccountManager
+import de.richardliebscher.intellij.gitlab.accounts.AccountsListener
+import de.richardliebscher.intellij.gitlab.accounts.PersistentDefaultAccountHolder
+import de.richardliebscher.intellij.gitlab.utils.CompletableFutureUtil.handleOnEdt
 import de.richardliebscher.intellij.gitlab.utils.indexOf
 import de.richardliebscher.intellij.gitlab.utils.iterable
 import kotlinx.coroutines.future.asCompletableFuture
@@ -134,8 +133,8 @@ private constructor(disposable: Disposable,
         accountsList.addListSelectionListener { accountsModel.selectedAccount = accountsList.selectedValue }
 
         accountsList.emptyText.apply {
-            appendText(CollaborationToolsBundle.message("accounts.none.added"))
-            appendSecondaryText(CollaborationToolsBundle.message("accounts.add.link"), SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
+            appendText(GitlabBundle.message("accounts.none.added"))
+            appendSecondaryText(GitlabBundle.message("accounts.add.link"), SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
                 val event = it.source
                 val relativePoint = if (event is MouseEvent) RelativePoint(event) else null
                 accountsModel.addAccount(accountsList, relativePoint)
@@ -155,7 +154,7 @@ private constructor(disposable: Disposable,
 
         if (accountsModel is AccountsListModel.WithDefault) {
             toolbar.addExtraAction(object : ToolbarDecorator.ElementActionButton(
-                CollaborationToolsBundle.message("accounts.set.default"),
+                GitlabBundle.message("accounts.set.default"),
                 AllIcons.Actions.Checked) {
                 override fun actionPerformed(e: AnActionEvent) {
                     val selected = accountsList.selectedValue

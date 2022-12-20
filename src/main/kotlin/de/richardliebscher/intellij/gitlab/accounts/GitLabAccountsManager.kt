@@ -2,8 +2,6 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.accounts
 
-import com.intellij.collaboration.auth.AccountManagerBase
-import com.intellij.collaboration.auth.AccountsRepository
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import de.richardliebscher.intellij.gitlab.model.SERVICE_DISPLAY_NAME

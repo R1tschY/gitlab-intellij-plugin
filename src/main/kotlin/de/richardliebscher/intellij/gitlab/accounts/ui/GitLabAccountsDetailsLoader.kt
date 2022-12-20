@@ -2,8 +2,6 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.accounts.ui
 
-import com.intellij.collaboration.async.CompletableFutureUtil.submitIOTask
-import com.intellij.collaboration.util.ProgressIndicatorsProvider
 import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
@@ -15,6 +13,7 @@ import de.richardliebscher.intellij.gitlab.api.GitLabApi
 import de.richardliebscher.intellij.gitlab.api.GitLabApiService
 import de.richardliebscher.intellij.gitlab.api.UserDetails
 import de.richardliebscher.intellij.gitlab.exceptions.UnauthorizedAccessException
+import de.richardliebscher.intellij.gitlab.utils.CompletableFutureUtil.submitIOTask
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.future.asDeferred

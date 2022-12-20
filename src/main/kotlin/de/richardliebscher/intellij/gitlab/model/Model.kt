@@ -2,9 +2,9 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.model
 
-import com.intellij.collaboration.api.ServerPath
 import com.intellij.util.xmlb.annotations.Attribute
 import com.intellij.util.xmlb.annotations.Tag
+import de.richardliebscher.intellij.gitlab.accounts.ServerPath
 import de.richardliebscher.intellij.gitlab.exceptions.GitLabIllegalUrlException
 import java.util.regex.Pattern
 

@@ -1,8 +1,8 @@
 // Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package de.richardliebscher.intellij.gitlab.accounts.ui
 
-import com.intellij.collaboration.auth.Account
-import com.intellij.collaboration.auth.AccountDetails
+import de.richardliebscher.intellij.gitlab.accounts.Account
+import de.richardliebscher.intellij.gitlab.accounts.AccountDetails
 import de.richardliebscher.intellij.gitlab.accounts.ui.AccountsDetailsLoader.Result.Error
 import de.richardliebscher.intellij.gitlab.accounts.ui.AccountsDetailsLoader.Result.Success
 

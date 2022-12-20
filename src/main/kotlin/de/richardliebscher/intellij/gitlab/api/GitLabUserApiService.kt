@@ -1,8 +1,8 @@
 package de.richardliebscher.intellij.gitlab.api
 
-import com.intellij.collaboration.auth.AccountDetails
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
+import de.richardliebscher.intellij.gitlab.accounts.AccountDetails
 import java.awt.Image
 import java.io.IOException
 

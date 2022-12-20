@@ -2,7 +2,6 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.settings
 
-import com.intellij.collaboration.util.ProgressIndicatorsProvider
 import com.intellij.openapi.components.service
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.project.Project
@@ -18,6 +17,7 @@ import de.richardliebscher.intellij.gitlab.accounts.GitLabProjectDefaultAccountH
 import de.richardliebscher.intellij.gitlab.accounts.ui.AccountsPanelFactory
 import de.richardliebscher.intellij.gitlab.accounts.ui.GitLabAccountsDetailsLoader
 import de.richardliebscher.intellij.gitlab.accounts.ui.GitLabAccountsListModel
+import de.richardliebscher.intellij.gitlab.accounts.ui.ProgressIndicatorsProvider
 import de.richardliebscher.intellij.gitlab.model.SERVICE_DISPLAY_NAME
 
 internal class GitLabSettingsConfigurable(private val project: Project) : BoundConfigurable(SERVICE_DISPLAY_NAME) {

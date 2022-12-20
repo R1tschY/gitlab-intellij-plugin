@@ -2,7 +2,6 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.services
 
-import com.intellij.collaboration.auth.AccountsListener
 import com.intellij.dvcs.repo.VcsRepositoryMappingListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
@@ -12,6 +11,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
+import de.richardliebscher.intellij.gitlab.accounts.AccountsListener
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAccount
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAccountsManager
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAuthService

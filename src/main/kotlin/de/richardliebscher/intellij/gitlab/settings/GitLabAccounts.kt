@@ -2,13 +2,13 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.settings
 
-import com.intellij.collaboration.auth.AccountsRepository
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.SettingsCategory
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.XmlSerializerUtil
 import com.intellij.util.xmlb.annotations.Tag
+import de.richardliebscher.intellij.gitlab.accounts.AccountsRepository
 import de.richardliebscher.intellij.gitlab.accounts.GitLabAccount
 
 

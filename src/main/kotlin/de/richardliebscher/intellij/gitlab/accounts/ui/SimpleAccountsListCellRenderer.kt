@@ -1,16 +1,16 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.accounts.ui
 
-import com.intellij.collaboration.auth.Account
-import com.intellij.collaboration.auth.AccountDetails
-import com.intellij.collaboration.auth.ServerAccount
-import com.intellij.collaboration.messages.CollaborationToolsBundle
 import com.intellij.ui.components.labels.LinkLabel
 import com.intellij.ui.components.labels.LinkListener
 import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.ListUiUtil
 import com.intellij.util.ui.UIUtil
+import de.richardliebscher.intellij.gitlab.GitlabBundle
+import de.richardliebscher.intellij.gitlab.accounts.Account
+import de.richardliebscher.intellij.gitlab.accounts.AccountDetails
+import de.richardliebscher.intellij.gitlab.accounts.ServerAccount
 import org.jetbrains.annotations.Nls
 import java.awt.*
 import javax.swing.*
@@ -29,7 +29,7 @@ internal class SimpleAccountsListCellRenderer<A : Account, D : AccountDetails>(
     private val fullName = JLabel()
 
     private val loadingError = JLabel()
-    private val reloginLink = LinkLabel<Any?>(CollaborationToolsBundle.message("login.link"), null)
+    private val reloginLink = LinkLabel<Any?>(GitlabBundle.message("login.link"), null)
 
     init {
         layout = FlowLayout(FlowLayout.LEFT, 0, 0)

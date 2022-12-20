@@ -2,9 +2,6 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.accounts.ui
 
-import com.intellij.collaboration.async.CompletableFutureUtil
-import com.intellij.collaboration.async.CompletableFutureUtil.handleOnEdt
-import com.intellij.collaboration.async.CompletableFutureUtil.submitIOTask
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.service
@@ -31,6 +28,9 @@ import de.richardliebscher.intellij.gitlab.exceptions.GitLabIllegalUrlException
 import de.richardliebscher.intellij.gitlab.model.DEFAULT_SERVER_URL
 import de.richardliebscher.intellij.gitlab.model.DEFAULT_URL
 import de.richardliebscher.intellij.gitlab.model.GitLabServerUrl
+import de.richardliebscher.intellij.gitlab.utils.CompletableFutureUtil
+import de.richardliebscher.intellij.gitlab.utils.CompletableFutureUtil.handleOnEdt
+import de.richardliebscher.intellij.gitlab.utils.CompletableFutureUtil.submitIOTask
 import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent

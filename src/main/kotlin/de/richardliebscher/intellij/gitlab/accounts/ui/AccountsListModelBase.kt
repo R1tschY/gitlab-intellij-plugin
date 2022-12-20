@@ -1,8 +1,8 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package de.richardliebscher.intellij.gitlab.accounts.ui
 
-import com.intellij.collaboration.auth.Account
 import com.intellij.ui.CollectionListModel
+import de.richardliebscher.intellij.gitlab.accounts.Account
 
 abstract class AccountsListModelBase<A : Account, Cred> : AccountsListModel.WithDefault<A, Cred> {
     override var accounts: Set<A>
