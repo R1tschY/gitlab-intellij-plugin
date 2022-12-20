@@ -3,24 +3,25 @@
 package de.richardliebscher.intellij.gitlab.utils
 
 import com.intellij.openapi.editor.Editor
+import com.intellij.util.io.URLUtil
 import de.richardliebscher.intellij.gitlab.model.GitLabProjectCoord
-import org.apache.commons.httpclient.util.URIUtil
-import org.apache.http.client.utils.URIBuilder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 
 fun buildCommitUrl(projectCoord: GitLabProjectCoord, hash: String): String {
-    return "${projectCoord.toUrl()}/-/commit/${URIUtil.encodePath(hash)}"
+    return "${projectCoord.toUrl()}/-/commit/${URLUtil.encodePath(hash)}"
 }
 
 
 fun buildFileUrl(editor: Editor?, projectCoord: GitLabProjectCoord, ref: String, file: String?): String {
     if (file == null) {
-        return "${projectCoord.toUrl()}/-/tree/${URIUtil.encodePath(ref)}"
+        return "${projectCoord.toUrl()}/-/tree/${URLUtil.encodePath(ref)}"
     }
 
     val result = StringBuilder()
-    result.append(projectCoord.toUrl()).append("/-/blob/").append(URIUtil.encodePath(ref)).append('/')
-        .append(URIUtil.encodePath(file))
+    result.append(projectCoord.toUrl()).append("/-/blob/").append(URLUtil.encodePath(ref)).append('/')
+        .append(URLUtil.encodePath(file))
     if (editor != null && editor.document.lineCount >= 1) {
         val caret = editor.caretModel.currentCaret
         val begin = caret.selectionStartPosition.line + 1
@@ -40,18 +41,36 @@ fun buildNewMergeRequestUrl(
     targetProjectId: Int?,
     targetBranch: String?
 ): String {
-    val uriBuilder = URIBuilder("${projectCoord.toUrl()}/-/merge_requests/new")
+    val url = "${projectCoord.toUrl()}/-/merge_requests/new"
+
+    val params = HashMap<String, String>()
     if (sourceProjectId != null) {
-        uriBuilder.addParameter("merge_request[source_project_id]", sourceProjectId.toString())
+        params["merge_request[source_project_id]"] = sourceProjectId.toString()
     }
     if (sourceBranch != null) {
-        uriBuilder.addParameter("merge_request[source_branch]", sourceBranch)
+        params["merge_request[source_branch]"] = sourceBranch
     }
     if (targetProjectId != null) {
-        uriBuilder.addParameter("merge_request[target_project_id]", targetProjectId.toString())
+        params["merge_request[target_project_id]"] = targetProjectId.toString()
     }
     if (targetBranch != null) {
-        uriBuilder.addParameter("merge_request[target_branch]", targetBranch)
+        params["merge_request[target_branch]"] = targetBranch
     }
-    return uriBuilder.toString()
+
+    if (params.isNotEmpty()) {
+        val stringBuilder = StringBuilder(url)
+        stringBuilder.append('?')
+        var first = true
+        for (param in params) {
+            if (first) {
+                first = false
+            } else {
+                stringBuilder.append('&')
+            }
+            stringBuilder.append(param.key).append("=").append(URLEncoder.encode(param.value, StandardCharsets.UTF_8))
+        }
+        return stringBuilder.toString()
+    } else {
+        return url
+    }
 }
