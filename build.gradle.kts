@@ -22,7 +22,7 @@ plugins {
     id("org.jetbrains.kotlinx.kover") version "0.6.1"
 
     // kotlinx.serialization
-    kotlin("plugin.serialization") version "1.7.22"
+    kotlin("plugin.serialization") version "1.8.10"
 
     // GraphQL query objects generator
     id("com.expediagroup.graphql") version "6.3.0"
